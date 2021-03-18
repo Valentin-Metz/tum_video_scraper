@@ -4,7 +4,6 @@ import tempfile
 import time
 from multiprocessing import Pool
 from os.path import expanduser
-from typing import Set
 from urllib.parse import urlparse, urljoin
 
 import requests
@@ -12,8 +11,10 @@ from bs4 import BeautifulSoup
 
 SOURCE_URL = 'https://live.rbg.tum.de/cgi-bin/streams'
 DESTINATION_FOLDER_PATH = os.path.join(expanduser("~"), "Videos", "Lectures")
+if not os.path.isdir(DESTINATION_FOLDER_PATH):  # create destinatnion folder if it does not exist
+    os.mkdir(DESTINATION_FOLDER_PATH)
 TMP_DIRECTORY = os.path.join(tempfile.gettempdir(), "tum_video_scraper")
-if not os.path.isdir(TMP_DIRECTORY):  # create temporary work-directory
+if not os.path.isdir(TMP_DIRECTORY):  # create temporary work-directory if it does not exist
     os.mkdir(TMP_DIRECTORY)
 PROCESS_COUNT = os.cpu_count()
 
@@ -24,7 +25,7 @@ def is_valid_url(url: str) -> bool:
 
 
 # source: https://www.thepythoncode.com/article/extract-all-website-links-python
-def get_all_website_links(url: str) -> Set[str]:
+def get_all_website_links(url: str) -> set[str]:
     urls_on_site = set()
     soup = BeautifulSoup(requests.get(url).content, "html.parser")
     for a_tag in soup.findAll("a"):
@@ -47,11 +48,11 @@ def get_all_website_links(url: str) -> Set[str]:
     return urls_on_site
 
 
-def filter_urls(urls: Set[str]) -> Set[str]:  # filters for combined view only
+def filter_urls(urls: set[str]) -> set[str]:  # filters for combined view only
     return {url for url in urls if url.endswith("/COMB")}
 
 
-def get_videos_of_subject(urls: Set[str], name: str, url_identifier: str):
+def get_videos_of_subject(urls: set[str], name: str, url_identifier: str):
     """The URL-Identifier is found in the URL of every video of the target subject"""
 
     output_folder_path = os.path.join(DESTINATION_FOLDER_PATH, name)
