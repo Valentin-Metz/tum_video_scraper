@@ -8,6 +8,7 @@ from urllib.parse import urlparse, urljoin
 
 import requests
 from bs4 import BeautifulSoup
+from typing import Set
 
 SOURCE_URL = 'https://live.rbg.tum.de/cgi-bin/streams'
 DESTINATION_FOLDER_PATH = os.path.join(expanduser("~"), "Videos", "Lectures")
@@ -25,7 +26,7 @@ def is_valid_url(url: str) -> bool:
 
 
 # source: https://www.thepythoncode.com/article/extract-all-website-links-python
-def get_all_website_links(url: str) -> set[str]:
+def get_all_website_links(url: str) -> Set[str]:
     urls_on_site = set()
     soup = BeautifulSoup(requests.get(url).content, "html.parser")
     for a_tag in soup.findAll("a"):
@@ -48,11 +49,11 @@ def get_all_website_links(url: str) -> set[str]:
     return urls_on_site
 
 
-def filter_urls(urls: set[str]) -> set[str]:  # filters for combined view only
+def filter_urls(urls: Set[str]) -> Set[str]:  # filters for combined view only
     return {url for url in urls if url.endswith("/COMB")}
 
 
-def get_videos_of_subject(urls: set[str], name: str, url_identifier: str):
+def get_videos_of_subject(urls: Set[str], name: str, url_identifier: str):
     """The URL-Identifier is found in the URL of every video of the target subject"""
 
     output_folder_path = os.path.join(DESTINATION_FOLDER_PATH, name)
