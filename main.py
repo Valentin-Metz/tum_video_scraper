@@ -1,18 +1,19 @@
 import os
 import re
+import tempfile
+import time
 from multiprocessing import Process
 from urllib.parse import urlparse, urljoin
 
 import requests
 from bs4 import BeautifulSoup
 
-source_url = 'https://live.rbg.tum.de/cgi-bin/streams'
-destination_folder_path = '/home/feuermagier/Videos/Lectures/'
-tmp_directory = '/tmp/tum_video_scraper/'
+SOURCE_URL = 'https://live.rbg.tum.de/cgi-bin/streams'
+DESTINATION_FOLDER_PATH = '/home/feuermagier/Videos/Lectures/'
+TMP_DIRECTORY = os.path.join(tempfile.gettempdir(), "tum_video_scraper")
 
-os.system("pip3 install -U auto-editor")  # update auto-editor because it is constantly out of date
-if not os.path.isdir(tmp_directory):  # create temporary work-directory
-    os.mkdir(tmp_directory)
+if not os.path.isdir(TMP_DIRECTORY):  # create temporary work-directory if it does not exist
+    os.mkdir(TMP_DIRECTORY)
 
 
 def is_valid_url(url: str) -> bool:
@@ -33,7 +34,7 @@ def get_all_website_links(url: str) -> set[str]:
         href = urljoin(url, href)
         parsed_href = urlparse(href)
         # remove URL GET parameters, URL fragments, etc.
-        href = parsed_href.scheme + "://" + parsed_href.netloc + parsed_href.path
+        href = f"{parsed_href.scheme}://{parsed_href.netloc}{parsed_href.path}"
         if not is_valid_url(href):
             # not a valid URL
             continue
@@ -50,7 +51,7 @@ def filter_urls(urls: set[str]) -> set[str]:  # filters for combined view only
 
 def get_videos_of_subject(urls: set[str], name: str, url_identifier: str):
     """The URL-Identifier is found in the URL of every video of the target subject"""
-    output_folder_path = os.path.join(destination_folder_path, name)
+    output_folder_path = os.path.join(DESTINATION_FOLDER_PATH, name)
     if not os.path.isdir(output_folder_path):
         os.mkdir(output_folder_path)
     urls = {url for url in urls if url_identifier in url}
@@ -64,21 +65,28 @@ def get_videos_of_subject(urls: set[str], name: str, url_identifier: str):
                 or os.path.isfile(output_file_path)):  # check if file exists
             open(os.path.join(output_file_path + ".lock"), 'a')  # create lock
             """We use one process for every video"""
-            #    download_and_cut(playlist_url, filename, output_file_path)
+            # download_and_cut(playlist_url, filename, output_file_path)
             Process(target=download_and_cut, args=(playlist_url, filename, output_file_path)).start()
 
 
 def download_and_cut(playlist_url: str, filename: str, output_file_path: str):
-    temporary_path = tmp_directory + filename + ".original"
-    download_command = "youtube-dl " + playlist_url + " -o " + temporary_path
+    temporary_path = os.path.join(TMP_DIRECTORY, (filename + ".original"))
+    download_command = "ffmpeg -y -hide_banner -hwaccel auto " + \
+                       f"-i {playlist_url} -c copy -f mp4 {temporary_path}"
     print("Starting download of " + filename)
+    download_start_time = time.time()
     os.system(download_command)
-    cut_command = "auto-editor " + temporary_path + " --silent_speed 8 --no_open -o " + output_file_path
+    print(f"Download completed after {str(time.time() - download_start_time)}s")
+    cut_command = "auto-editor " + temporary_path + \
+                  " --silent_speed 8 --frame_margin 15 --video_codec libx264 --constant_rate_factor 30 --no_open -o " \
+                  + output_file_path
     print("Starting to convert " + filename)
+    conversion_start_time = time.time()
     os.system(cut_command)
+    print(f"Conversion completed after {str(time.time() - conversion_start_time)}s")
     os.remove(temporary_path)
     os.remove(output_file_path + ".lock")  # remove lock
-    print("Done with " + filename)
+    print(f"Done with {filename} after {str(time.time() - download_start_time)}s")
 
 
 def get_name(url: str) -> str:
@@ -97,8 +105,8 @@ def get_playlist_url(url: str) -> str:
 
 if __name__ == '__main__':
     os.nice(15)  # set our nice value, so we can work in the background
-    all_urls = get_all_website_links(source_url)
-    video_urls = filter_urls(all_urls)
+    all_urls: set[str] = get_all_website_links(SOURCE_URL)
+    video_urls: set[str] = filter_urls(all_urls)
 
     get_videos_of_subject(video_urls, 'GBS', 'WiSe2021GBS')
     get_videos_of_subject(video_urls, 'NumProg', 'WiSe2021NumProg')
