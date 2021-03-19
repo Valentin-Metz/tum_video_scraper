@@ -1,22 +1,27 @@
+import json
 import os
 import re
 import tempfile
 import time
 from multiprocessing import Pool
 from os.path import expanduser
+from typing import Set, Dict
 from urllib.parse import urlparse, urljoin
 
 import requests
 from bs4 import BeautifulSoup
-from typing import Set
 
 SOURCE_URL = 'https://live.rbg.tum.de/cgi-bin/streams'
+CONFIG_FILE = "config.json"
 DESTINATION_FOLDER_PATH = os.path.join(expanduser("~"), "Videos", "Lectures")
-if not os.path.isdir(DESTINATION_FOLDER_PATH):  # create destinatnion folder if it does not exist
+if not os.path.isdir(DESTINATION_FOLDER_PATH):  # create destinatnion-directory if it does not exist
     os.mkdir(DESTINATION_FOLDER_PATH)
+
+# /tmp/tum_video_scraper or most likely C:\TEMP\tum_video_scraper\. Windows has a multitude of temp folders.
 TMP_DIRECTORY = os.path.join(tempfile.gettempdir(), "tum_video_scraper")
 if not os.path.isdir(TMP_DIRECTORY):  # create temporary work-directory if it does not exist
     os.mkdir(TMP_DIRECTORY)
+
 PROCESS_COUNT = os.cpu_count()
 
 
@@ -88,29 +93,74 @@ def download_and_cut(playlist_url: str, filename: str, output_file_path: str):
                       f"{temporary_path.name}")
             print(f"Starting to convert {filename}")
             os.system(f"auto-editor {temporary_path.name} "
-                      f"--silent_speed 8 --frame_margin 15 --video_codec libx264 --constant_rate_factor 30 --no_progress --no_open "
+                      f"--silent_speed 8 --frame_margin 15 --video_codec libx264 --constant_rate_factor 30 "
+                      f"--no_progress --no_open "
                       f"-o {output_file_path}")
 
         os.remove(f"{output_file_path}.lock")  # remove lock
         print(f"Done with {filename} in {str(time.time() - start_time)}s")
 
 
-def get_name(url: str) -> str:
-    return url.rsplit('/')[-2]
+def get_name(p_url: str) -> str:
+    return p_url.rsplit('/')[-2]
 
 
-def get_playlist_url(url: str) -> str:
-    text = requests.get(url).text
+def get_playlist_url(p_url: str) -> str:
+    text = requests.get(p_url).text
     prefix = 'https://stream.lrz.de/vod/_definst_/mp4:tum/RBG'
     postfix = '.mp4/playlist.m3u8'
     playlist_extracted_url = re.search(f'{prefix}(.+?){postfix}', text).group(1)
     return prefix + playlist_extracted_url + postfix
 
 
+def map_to_identifiers(playlist_urls: Set[str]) -> Dict[str, Dict[str, bool]]:
+    ids = {}
+    for p_url in playlist_urls:
+        long_id = p_url.rsplit('/')[-3]
+        if long_id[8:] in ids:
+            ids[long_id[8:]][long_id[:8]] = False
+        else:
+            ids[long_id[8:]] = {long_id[:8]: False}
+    return ids
+
+
+def merge_identifiers(ids, prev_ids):
+    # merges previous identifiers and current identifiers.
+    # invalid formating in the previous config is ignored
+    if prev_ids and isinstance(prev_ids, dict):
+        for p_name, p_choices in prev_ids.items():
+            if isinstance(p_choices, dict):
+                if p_name not in ids:
+                    ids[p_name] = p_choices
+                else:
+                    for p_sub_option, p_is_selected in p_choices.items():
+                        if p_sub_option not in ids[p_name]:
+                            ids[p_name][p_sub_option] = p_is_selected
+                        else:
+                            ids[p_name][p_sub_option] |= p_is_selected
+    return ids
+
+
+def get_identifiers(playlist_urls):
+    ids: Dict[str, Dict[str, bool]] = map_to_identifiers(playlist_urls)
+    if not os.path.isfile(CONFIG_FILE):
+        open(CONFIG_FILE, "x").close()
+    with open(CONFIG_FILE, "r+") as config_file:
+        if os.path.getsize("config.json") > 0:
+            previous_identifieres = json.load(config_file)
+            config_file.seek(0)
+            ids = merge_identifiers(ids, previous_identifieres)
+        json.dump(ids, config_file, sort_keys=True, indent=4)
+    return ids
+
+
 if __name__ == '__main__':
     os.nice(15)  # set our nice value, so we can work in the background
-    all_urls = get_all_website_links(SOURCE_URL)
-    video_urls = filter_urls(all_urls)
-    # download_and_cut('https://stream.lrz.de/vod/_definst_/mp4:tum/RBG/WiSe2021GBS20201221134500.13.009ACOMB.mp4/playlist.m3u8','2020_12_21_13_45.mp4','/home/frank/Videos/Lectures/GBS/2020_12_21_13_45.mp4')
-    get_videos_of_subject(video_urls, 'GBS', 'WiSe2021GBS')
-    # get_videos_of_subject(video_urls, 'NumProg', 'WiSe2021NumProg')
+    all_urls: Set[str] = get_all_website_links(SOURCE_URL)
+    video_urls: Set[str] = filter_urls(all_urls)
+    identifieres: Dict[str, Dict[str, bool]] = get_identifiers(video_urls)
+
+    for name, choices in identifieres.items():
+        for sub_option, is_selected in choices.items():
+            if is_selected:
+                get_videos_of_subject(video_urls, name, f"{sub_option}{name}")
