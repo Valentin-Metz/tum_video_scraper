@@ -39,7 +39,7 @@ if __name__ == '__main__':
     parser.add_argument("--panopto",
                         help="list of TUM-Panopto folders in the form: subject_name:panopto_folder_id",
                         type=parse_tum_panopto_folder, nargs='+')
-    parser.add_argument("-u", "--username", help="TUM-Username (ab12cde)", type=str)
+    parser.add_argument("-u", "--username", help="TUM-Username (go42tum)", type=str)
     parser.add_argument("-p", "--password", help="TUM-Password (must fit to the TUM-Username)", type=str)
     args = parser.parse_args()
 
