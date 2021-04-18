@@ -31,7 +31,10 @@ source ./venv/bin/activate
 Usage:
 
 ```
-The first path supplied will be taken as output directory.
+The first argument supplied must be the output directory.
+If you want to supply it at a different position, the argument must be marked with "output_folder".
+    (Example: output_folder /home/feuermagier/videos/Lectures)
+
 
 Optional arguments:
 
