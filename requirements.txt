@@ -1,3 +1,4 @@
-auto-editor~=21.10.1
-beautifulsoup4~=4.9.3
-requests~=2.25.1
+auto-editor>=21.11.1
+requests>=2.25.1
+selenium>=3.141.0
+BeautifulSoup4>=4.9.3
