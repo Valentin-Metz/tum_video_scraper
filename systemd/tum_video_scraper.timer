@@ -1,0 +1,10 @@
+[Unit]
+Description=Run tum_video_scraper every 15-20 minutes
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=15min
+RandomizedDelaySec=5min
+
+[Install]
+WantedBy=timers.target

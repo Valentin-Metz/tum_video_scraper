@@ -5,6 +5,8 @@ Required system dependencies:
 ```
 python  >= 3.9
 ffmpeg  >= 4.3.2
+firefox >= 87.0.0
+geckodriver >= 0.26.0
 ```
 
 Create a virtual environment (in the project folder) and install project-dependencies into it.

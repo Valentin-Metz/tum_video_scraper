@@ -1,0 +1,10 @@
+[Unit] 
+Description=Download and jump-cut TUM-live and TUM-Panopto videos 
+Wants=tum_video_scraper.timer
+
+[Service] 
+ExecStart=/bin/tum_video_scraper /mnt/NAS/Video/Lectures/ --tum_live DWT:SoSe2021DWT:COMB --panopto THEO:a150c6d5-6cbe-40b0-8dc1-ad0a00967dfb AGT:56d3768c-f81c-45ea-9949-ad0500e7a73b -u "ge35quy" -p "hunter2"
+WorkingDirectory=/tmp/
+
+[Install] 
+WantedBy=multi-user.target

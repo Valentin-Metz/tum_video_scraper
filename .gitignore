@@ -3,4 +3,4 @@
 /build
 /dist
 geckodriver.log
-main.spec
+*.spec
