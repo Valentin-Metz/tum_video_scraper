@@ -56,8 +56,13 @@ Optional arguments:
     folder_id: Can be found in the URL of your Panopto folder
         (Example: https://tum.cloud.panopto.eu/Panopto/Pages/Sessions/List.aspx#folderID=a150c6d5-6cbe-40b0-8dc1-ad0a00967dfb - "a150c6d5-6cbe-40b0-8dc1-ad0a00967dfb" is the folder_id)
 
---username: Your TUM-Username (Example: ab12cde)
+--username: Your TUM-Username (Example: ex69lnt)
 --password: The password for your TUM-Username (Example: "hunter2")
 
 --temp_dir: Allows you to spcify a custom temp-directory. Usually the system-temp-folder will be used. You probably won't need this.
 ```
+
+# Automation
+If you want to automatically download your lectures in the future, all you need to do is run the scraper periodically.
+
+I suggest you use `systemd` for this task. Instructions on how to do this can be found in the `/systemd/README.md` of this repository.
