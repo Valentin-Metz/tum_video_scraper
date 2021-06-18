@@ -1,5 +1,5 @@
 [Unit]
-Description=Run tum_video_scraper every 15-20 minutes
+Description=Timer that runs the tum_video_scraper every 15-20 minutes
 
 [Timer]
 OnBootSec=5min

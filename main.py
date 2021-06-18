@@ -5,6 +5,7 @@ from pathlib import Path
 
 import panopto
 import tum_live
+import tum_live2
 
 
 def parse_tum_live_subject(s: str) -> (str, str, str):
@@ -36,10 +37,13 @@ if __name__ == '__main__':
     parser.add_argument("--tum_live",
                         help="list of TUM-live subjects in the form: subject_name:subject_identifier:camera_type",
                         type=parse_tum_live_subject, nargs='+')
+    parser.add_argument("--tum_live2",
+                        help="list of TUM-live2 subjects in the form: subject_name:course_signature:camera_type",
+                        type=parse_tum_live_subject, nargs='+')
     parser.add_argument("--panopto",
                         help="list of TUM-Panopto folders in the form: subject_name:panopto_folder_id",
                         type=parse_tum_panopto_folder, nargs='+')
-    parser.add_argument("-u", "--username", help="TUM-Username (ab12cde)", type=str)
+    parser.add_argument("-u", "--username", help="TUM-Username (go42tum)", type=str)
     parser.add_argument("-p", "--password", help="TUM-Password (must fit to the TUM-Username)", type=str)
     args = parser.parse_args()
 
@@ -52,18 +56,24 @@ if __name__ == '__main__':
             raise argparse.ArgumentTypeError("The supplied TEMP_DIR is invalid")
 
     tum_live_subjects = args.tum_live
+    tum_live2_subjects = args.tum_live2
     panopto_folders = args.panopto
     username = args.username
     password = args.password
+    if username and not password:
+        password = input("Please enter your TUM-Password (must fit to the TUM-Username):\n")
 
     if not os.path.isdir(TMP_DIRECTORY):  # create temporary work-directory if it does not exist
         os.mkdir(TMP_DIRECTORY)
 
-    if panopto_folders and not (username and password):
-        raise argparse.ArgumentTypeError("Panopto requires a TUM username and password")
+    if (tum_live2_subjects or panopto_folders) and not (username and password):
+        raise argparse.ArgumentTypeError("Panopto and the new TUM-Live requires a TUM username and password")
 
     if tum_live_subjects:
         tum_live.get_subjects(tum_live_subjects, destination_folder_path, TMP_DIRECTORY)
+
+    if tum_live2_subjects:
+        tum_live2.get_subjects(tum_live2_subjects, destination_folder_path, TMP_DIRECTORY, username, password)
 
     if panopto_folders:
         panopto.get_folders(panopto_folders, destination_folder_path, TMP_DIRECTORY, username, password)
