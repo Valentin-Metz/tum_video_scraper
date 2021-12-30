@@ -43,26 +43,29 @@ Optional arguments:
 --help: Prints a help message
 
 --tum_live: Download a subject from TUM-live (subject_name:subject_identifier:camera_type)
-    subject_name: Will be used as the folder name. Freely choosable by you
-    subject_identifier: Can be found in the URL of a video of your chosen subject
-        (Example: https://live.rbg.tum.de/cgi-bin/streams/VOD/SoSe2021DWT/2021_04_16_12_15/COMB - "SoSe2021DWT" is the subject_identifier for videos of this subject)
+    subject_name: Will be used as the folder name. Freely choosable by you.
+    subject_identifier: Can be found in the URL of your chosen subject
+        (Example: https://live.rbg.tum.de/course/2021/W/it-sec - "2021/W/it-sec" is the subject_identifier for videos of this subject)
     camera_type: The camera-view to download
         COMB: Presentation slides fused with speaker-camera
         PRES: Presentation slides
         CAM:  Speaker camera
         
 --panopto: Download a folder from TUM-Panopto. As Panopto is login-only you will have to supply your TUM-credentials.
-    subject_name: Will be used as the folder name. Freely choosable by you
+    subject_name: Will be used as the folder name. Freely choosable by you.
     folder_id: Can be found in the URL of your Panopto folder
         (Example: https://tum.cloud.panopto.eu/Panopto/Pages/Sessions/List.aspx#folderID=a150c6d5-6cbe-40b0-8dc1-ad0a00967dfb - "a150c6d5-6cbe-40b0-8dc1-ad0a00967dfb" is the folder_id)
 
---username: Your TUM-Username (Example: ex69lnt)
+--username: Your TUM-Username (Example: go42tum)
 --password: The password for your TUM-Username (Example: "hunter2")
 
 --temp_dir: Allows you to spcify a custom temp-directory. Usually the system-temp-folder will be used. You probably won't need this.
+--maximum_parallel_downloads: Allows you to specify how many videos we download and convert at a time. Conversion uses a lot of RAM, so be careful with this. The default is 3.
 ```
 
 # Automation
+
 If you want to automatically download your lectures in the future, all you need to do is run the scraper periodically.
 
-I suggest you use `systemd` for this task. Instructions on how to do this can be found in the `/systemd/README.md` of this repository.
+I suggest you use `systemd` for this task. Instructions on how to do this can be found in the `/systemd/README.md` of
+this repository.

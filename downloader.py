@@ -1,11 +1,13 @@
 import os
+import re
 import time
-from multiprocessing import Process
+from multiprocessing import Process, Semaphore
 from pathlib import Path
 
 
-def download_list_of_videos(videos: (str, str), output_folder_path: Path, tmp_directory: Path):
+def download_list_of_videos(videos: (str, str), output_folder_path: Path, tmp_directory: Path, semaphore: Semaphore):
     for filename, url in videos:
+        filename = re.sub('[\\\\/:*?"<>|]|[\x00-\x20]', '_', filename) + ".mp4"
         output_file_path = Path(output_folder_path, filename)
         """We use locks to prevent processing the same video twice (for example if we run as a daemon)
         Locks can also be created by the user to keep us from downloading a specific video"""
@@ -13,11 +15,13 @@ def download_list_of_videos(videos: (str, str), output_folder_path: Path, tmp_di
                 or output_file_path.exists()):  # check if file exists
             Path(output_file_path.as_posix() + ".lock").touch()  # create lock
             """We use one process for every video"""
-            # download_and_cut_video(filename, url, output_file_path, tmp_directory)
-            Process(target=download_and_cut_video, args=(filename, url, output_file_path, tmp_directory)).start()
+            Process(target=download_and_cut_video,
+                    args=(filename, url, output_file_path, tmp_directory, semaphore)).start()
 
 
-def download_and_cut_video(filename: str, playlist_url: str, output_file_path: Path, tmp_directory: Path):
+def download_and_cut_video(filename: str, playlist_url: str, output_file_path: Path, tmp_directory: Path,
+                           semaphore: Semaphore):
+    semaphore.acquire()
     temporary_path = Path(tmp_directory, filename + ".original")
     download_command = "ffmpeg -y -hide_banner -hwaccel auto " + \
                        f"-i \"{playlist_url}\" -c copy -f mp4 \"{temporary_path}\" > /dev/null"
@@ -32,4 +36,5 @@ def download_and_cut_video(filename: str, playlist_url: str, output_file_path: P
     print(f"Conversion of {filename} completed after {str(time.time() - conversion_start_time)}s")
     temporary_path.unlink()
     Path(output_file_path.as_posix() + ".lock").unlink()  # remove lock
+    semaphore.release()
     print(f"Done with {filename} after {str(time.time() - download_start_time)}s")

@@ -1,78 +1,63 @@
+import argparse
 import re
+from multiprocessing import Semaphore
 from pathlib import Path
-from urllib.parse import urlparse, urljoin
+from time import sleep
 
-import requests
-from bs4 import BeautifulSoup
+from selenium import webdriver
 
 import downloader
 
 
-def get_subjects(subjects: (str, str, str), destination_folder_path, tmp_directory):
-    source_url = 'https://live.rbg.tum.de/cgi-bin/streams'
-    all_urls: set[str] = get_all_website_links(source_url)
-
-    for subject_name, subjects_identifier, camera_type in subjects:
-        video_urls: set[str] = filter_urls(all_urls, camera_type)
-        get_videos_of_subject(video_urls, subject_name, subjects_identifier, destination_folder_path, tmp_directory)
-
-
-def is_valid_url(url: str) -> bool:
-    parsed = urlparse(url)
-    return bool(parsed.netloc) and bool(parsed.scheme)
-
-
-# source: https://www.thepythoncode.com/article/extract-all-website-links-python
-def get_all_website_links(url: str) -> set[str]:
-    urls_on_site = set()
-    soup = BeautifulSoup(requests.get(url).content, "html.parser")
-    for a_tag in soup.findAll("a"):
-        href = a_tag.attrs.get("href")
-        if href == "" or href is None:
-            # href empty tag
-            continue
-        # join the URL if it's relative (not absolute link)
-        href = urljoin(url, href)
-        parsed_href = urlparse(href)
-        # remove URL GET parameters, URL fragments, etc.
-        href = f"{parsed_href.scheme}://{parsed_href.netloc}{parsed_href.path}"
-        if not is_valid_url(href):
-            # not a valid URL
-            continue
-        if href in urls_on_site:
-            # already in the set
-            continue
-        urls_on_site.add(href)
-    return urls_on_site
+def login(tum_username: str, tum_password: str) -> webdriver:
+    driver_options = webdriver.FirefoxOptions()
+    driver_options.add_argument("--headless")
+    driver = webdriver.Firefox(options=driver_options)
+    driver.get("https://live.rbg.tum.de/login")
+    driver.find_element_by_id("username").send_keys(tum_username)
+    driver.find_element_by_id("password").send_keys(tum_password)
+    driver.find_element_by_id("username").submit()
+    sleep(5)
+    if "Couldn't log in. Please double check your credentials." in driver.page_source:
+        driver.close()
+        raise argparse.ArgumentTypeError("Username or password incorrect")
+    return driver
 
 
-def filter_urls(urls: set[str], camera_type: str) -> set[str]:  # filters for combined view only
-    return {url for url in urls if url.endswith("/" + camera_type)}
+def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_type) -> [(str, str)]:
+    subject_url = "https://live.rbg.tum.de/course/" + subjects_identifier
+    driver.get(subject_url)
+    links_on_page = driver.find_elements_by_xpath(".//a")
+    video_urls: set[str] = set()
+    for link in links_on_page:
+        link_url = link.get_attribute("href")
+        if link_url and "https://live.rbg.tum.de/w/" in link_url:
+            video_urls.add(link_url)
+    video_urls = {url for url in video_urls if ("/CAM" not in url and "/PRES" not in url)}
+    video_playlists: set[(str, str)] = set()
+    for video_url in video_urls:
+        driver.get(video_url + "/" + camera_type)
+        sleep(2)
+        filename = driver.find_element_by_xpath("/html/body/div[2]/div/div/div[3]/h1").text.strip()
+        playlist_url = get_playlist_url(driver.page_source)
+        video_playlists.add((filename, playlist_url))
+    return video_playlists
 
 
-def get_videos_of_subject(urls: set[str], subject_name: str, url_identifier: str, destination_folder_path: Path,
-                          tmp_directory: Path):
-    """The URL-Identifier is found in the URL of every video of the target subject"""
-    output_folder_path = Path(destination_folder_path, subject_name)
-    output_folder_path.mkdir(exist_ok=True)
-    urls = {url for url in urls if url_identifier in url}
-    videos = []
-    for url in urls:
-        filename = get_name(url) + ".mp4"
-        playlist_url = get_playlist_url(url)
-        videos.append((filename, playlist_url))
-    downloader.download_list_of_videos(videos, output_folder_path, tmp_directory)
-
-
-def get_name(url: str) -> str:
-    name = url.rsplit('/')[-2]
-    return name
-
-
-def get_playlist_url(url: str) -> str:
-    text = requests.get(url).text
-    prefix = 'https://stream.lrz.de/vod/_definst_/mp4:tum/RBG'
+def get_playlist_url(source: str) -> str:
+    prefix = 'https://stream.lrz.de/vod/_definst_/mp4:tum/RBG/'
     postfix = '.mp4/playlist.m3u8'
-    playlist_extracted_url = re.search(prefix + '(.+?)' + postfix, text).group(1)
+    playlist_extracted_url = re.search(prefix + '(.+?)' + postfix, source).group(1)
     playlist_url = prefix + playlist_extracted_url + postfix
     return playlist_url
+
+
+def get_subjects(subjects: (str, str, str), destination_folder_path: Path, tmp_directory: Path,
+                 tum_username: str, tum_password: str, semaphore: Semaphore):
+    driver = login(tum_username, tum_password)
+    for subject_name, subjects_identifier, camera_type in subjects:
+        m3u8_playlists = get_video_links_of_subject(driver, subjects_identifier, camera_type)
+        subject_folder = Path(destination_folder_path, subject_name)
+        subject_folder.mkdir(exist_ok=True)
+        downloader.download_list_of_videos(m3u8_playlists, subject_folder, tmp_directory, semaphore)
+    driver.close()
