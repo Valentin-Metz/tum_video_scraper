@@ -1,0 +1,12 @@
+TUM-live:
+  "IT-Sec": "2021/W/it-sec:COMB"
+  "NumProg": "2021/W/NumProg:COMB"
+Panopto:
+  "Biological Imaging": "b87a3aa9-6f30-4fe3-9804-adcc00c7b486"
+
+Username: "go42tum"
+Password: "hunter2"
+
+Output-Folder: "/mnt/NAS/Video/Lectures/"
+
+Maximum-Parallel-Downloads: 3

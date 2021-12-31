@@ -2,3 +2,4 @@ auto-editor>=21.51.1
 requests>=2.26.0
 selenium>=4.1.0
 BeautifulSoup4>=4.10.0
+PyYAML>=6.0

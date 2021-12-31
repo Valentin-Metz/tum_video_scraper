@@ -52,10 +52,10 @@ def get_playlist_url(source: str) -> str:
     return playlist_url
 
 
-def get_subjects(subjects: (str, str, str), destination_folder_path: Path, tmp_directory: Path,
+def get_subjects(subjects: dict[str, (str, str)], destination_folder_path: Path, tmp_directory: Path,
                  tum_username: str, tum_password: str, semaphore: Semaphore):
     driver = login(tum_username, tum_password)
-    for subject_name, subjects_identifier, camera_type in subjects:
+    for subject_name, (subjects_identifier, camera_type) in subjects.items():
         m3u8_playlists = get_video_links_of_subject(driver, subjects_identifier, camera_type)
         subject_folder = Path(destination_folder_path, subject_name)
         subject_folder.mkdir(exist_ok=True)

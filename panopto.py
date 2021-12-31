@@ -67,10 +67,10 @@ def get_m3u8_playlist(driver: webdriver, video_id: str) -> (str, str):
     return filename, playlist_url
 
 
-def get_folders(panopto_folders: [(str, str)], destination_folder_path: Path, tmp_directory: Path,
+def get_folders(panopto_folders: dict[str, str], destination_folder_path: Path, tmp_directory: Path,
                 tum_username: str, tum_password: str, semaphore: Semaphore):
     driver = login(tum_username, tum_password)
-    for subject_name, folder_id in panopto_folders:
+    for subject_name, folder_id in panopto_folders.items():
         m3u8_playlists = get_video_links_in_folder(driver, folder_id)
         subject_folder = Path(destination_folder_path, subject_name)
         subject_folder.mkdir(exist_ok=True)
