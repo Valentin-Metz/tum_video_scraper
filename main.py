@@ -70,7 +70,7 @@ if __name__ == '__main__':
     # Load the config file (if there is one)
     if args.config_file:
         if not os.path.isfile(args.config_file):
-            raise argparse.ArgumentTypeError("The supplied CONFIG_FILE is invalid")
+            raise argparse.ArgumentTypeError("The supplied CONFIG_FILE does not exist.")
         with open(args.config_file, "r") as config_file:
             cfg = yaml.load(config_file, Loader=yaml.SafeLoader)
 
