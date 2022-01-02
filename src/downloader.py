@@ -29,11 +29,11 @@ def download_and_cut_video(filename: str, playlist_url: str, output_file_path: P
     print("Starting download of " + filename)
     ffmpeg = subprocess.run([
         'ffmpeg',
+        '-y',  # Overwrite output file if it already exists
         '-hwaccel', 'auto',
+        '-i', playlist_url,  # Input file
         '-c', 'copy',  # Codec name
         '-f', 'mp4',
-        '-i', playlist_url,  # Input file
-        '-y',  # Overwrite output file if it already exists
         temporary_path  # Output file
     ], capture_output=True)
 
