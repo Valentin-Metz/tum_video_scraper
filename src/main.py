@@ -1,9 +1,10 @@
 import argparse
 import os
 import tempfile
-import yaml
 from multiprocessing import Process, Semaphore
 from pathlib import Path
+
+import yaml
 
 import panopto
 import tum_live
@@ -138,6 +139,8 @@ if __name__ == '__main__':
     if args.maximum_parallel_downloads:
         maximum_parallel_downloads = args.maximum_parallel_downloads
     semaphore = Semaphore(maximum_parallel_downloads)  # keeps us from using massive amounts of RAM
+
+    print("Starting new run")
 
     # Process TUM-live videos
     if tum_live_subjects:

@@ -1,7 +1,7 @@
 import re
+import subprocess
 import sys
 import time
-import subprocess
 from multiprocessing import Process, Semaphore
 from pathlib import Path
 
@@ -26,14 +26,14 @@ def download_and_cut_video(filename: str, playlist_url: str, output_file_path: P
     temporary_path = Path(tmp_directory, filename + ".original")  # Download location
     download_start_time = time.time()  # Track download time
 
-    print("Starting download of " + filename)
+    print(f"Starting download of {filename}")
     ffmpeg = subprocess.run([
         'ffmpeg',
         '-y',  # Overwrite output file if it already exists
-        '-hwaccel', 'auto',
+        '-hwaccel', 'auto',  # Hardware acceleration
         '-i', playlist_url,  # Input file
         '-c', 'copy',  # Codec name
-        '-f', 'mp4',
+        '-f', 'mp4',  # Force mp4 as output file format
         temporary_path  # Output file
     ], capture_output=True)
 
@@ -48,12 +48,13 @@ def download_and_cut_video(filename: str, playlist_url: str, output_file_path: P
 
     print(f"Download of {filename} completed after {str(time.time() - download_start_time)}s")
     conversion_start_time = time.time()  # Track auto-editor time
+    print(f"Starting conversion of {filename}")
 
     auto_editor = subprocess.run([
         'auto-editor',
         temporary_path,  # Input file
         '--silent_speed', '8',  # Speed multiplier while there is no audio
-        '--video_codec', 'libx264',
+        '--video_codec', 'libx264',  # Video codec
         '--constant_rate_factor', '30',  # Framerate
         '--no_open',  # Don't open the finished file
         '-o', output_file_path  # Output file
