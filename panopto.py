@@ -5,26 +5,27 @@ from pathlib import Path
 from time import sleep
 
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 
 import downloader
 
 
 def login(tum_username: str, tum_password: str) -> webdriver:
-    driver_options = webdriver.FirefoxOptions()
+    driver_options = webdriver.ChromeOptions()
     driver_options.add_argument("--headless")
-    driver = webdriver.Firefox(options=driver_options)
+    driver = webdriver.Chrome(options=driver_options)
     driver.get("https://www.moodle.tum.de/login/index.php")
-    driver.find_element_by_link_text("TUM LOGIN").click()
-    driver.find_element_by_id("username").send_keys(tum_username)
-    driver.find_element_by_id("password").send_keys(tum_password)
-    driver.find_element_by_id("btnLogin").click()
+    driver.find_element(By.LINK_TEXT, "TUM LOGIN").click()
+    driver.find_element(By.ID, "username").send_keys(tum_username)
+    driver.find_element(By.ID, "password").send_keys(tum_password)
+    driver.find_element(By.ID, "btnLogin").click()
     sleep(3)
     if "Username or password was incorrect" in driver.page_source:
         driver.close()
         raise argparse.ArgumentTypeError("Username or password incorrect")
 
     driver.get("https://tum.cloud.panopto.eu/")
-    driver.find_element_by_link_text("Sign in").click()
+    driver.find_element(By.LINK_TEXT, "Sign in").click()
     sleep(1)
     return driver
 
@@ -34,7 +35,7 @@ def get_video_links_in_folder(driver: webdriver, folder_id: str) -> [(str, str)]
                   f"{folder_id}" \
                   f"%22&maxResults=250"
     driver.get(folder_link)
-    sleep(5)
+    sleep(3)
     if "Failed to load folder" in driver.title:
         print("Folder-ID incorrect: " + folder_id)
         raise Exception

@@ -144,7 +144,7 @@ if __name__ == '__main__':
         Process(target=tum_live.get_subjects,
                 args=(tum_live_subjects, destination_folder_path, tmp_directory, username, password, semaphore)).start()
 
-    # Process panopto videos
+    # Process Panopto videos
     if panopto_folders:
         Process(target=panopto.get_folders,
                 args=(panopto_folders, destination_folder_path, tmp_directory, username, password, semaphore)).start()

@@ -5,19 +5,20 @@ from pathlib import Path
 from time import sleep
 
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 
 import downloader
 
 
 def login(tum_username: str, tum_password: str) -> webdriver:
-    driver_options = webdriver.FirefoxOptions()
+    driver_options = webdriver.ChromeOptions()
     driver_options.add_argument("--headless")
-    driver = webdriver.Firefox(options=driver_options)
+    driver = webdriver.Chrome(options=driver_options)
     driver.get("https://live.rbg.tum.de/login")
-    driver.find_element_by_id("username").send_keys(tum_username)
-    driver.find_element_by_id("password").send_keys(tum_password)
-    driver.find_element_by_id("username").submit()
-    sleep(5)
+    driver.find_element(By.ID, "username").send_keys(tum_username)
+    driver.find_element(By.ID, "password").send_keys(tum_password)
+    driver.find_element(By.ID, "username").submit()
+    sleep(2)
     if "Couldn't log in. Please double check your credentials." in driver.page_source:
         driver.close()
         raise argparse.ArgumentTypeError("Username or password incorrect")
