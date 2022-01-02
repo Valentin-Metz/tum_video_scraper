@@ -38,12 +38,13 @@ def download_and_cut_video(filename: str, playlist_url: str, output_file_path: P
     ], capture_output=True)
 
     if ffmpeg.returncode != 0:  # Print debug output in case of error
-        print(f'Error during download of "{filename}" with ffmpeg!', file=sys.stderr)
+        print(f'Error during download of "{filename}" with ffmpeg:', file=sys.stderr)
         print(f'Playlist file: {playlist_url}', file=sys.stderr)
         print(f'Designated download location: {temporary_path}', file=sys.stderr)
         print(f'Designated output location: {output_file_path}', file=sys.stderr)
         print(f'Output of ffmpeg to stdout:\n' + ffmpeg.stdout.decode('utf-8'), file=sys.stderr)
         print(f'Output of ffmpeg to stderr:\n' + ffmpeg.stderr.decode('utf-8'), file=sys.stderr)
+        return
 
     print(f"Download of {filename} completed after {str(time.time() - download_start_time)}s")
     conversion_start_time = time.time()  # Track auto-editor time
@@ -59,12 +60,13 @@ def download_and_cut_video(filename: str, playlist_url: str, output_file_path: P
     ], capture_output=True)
 
     if auto_editor.returncode != 0:  # Print debug output in case of error
-        print(f'Error during conversion of "{filename}" with auto-editor!', file=sys.stderr)
+        print(f'Error during conversion of "{filename}" with auto-editor:', file=sys.stderr)
         print(f'Playlist file: {playlist_url}', file=sys.stderr)
         print(f'Reading from: {temporary_path}', file=sys.stderr)
         print(f'Designated output location: {output_file_path}', file=sys.stderr)
         print(f'Output of auto-editor to stdout:\n' + ffmpeg.stdout.decode('utf-8'), file=sys.stderr)
         print(f'Output of auto-editor to stderr:\n' + ffmpeg.stderr.decode('utf-8'), file=sys.stderr)
+        return
 
     print(f"Conversion of {filename} completed after {str(time.time() - conversion_start_time)}s")
     temporary_path.unlink()  # Delete original file
