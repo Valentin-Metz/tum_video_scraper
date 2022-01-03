@@ -9,6 +9,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 
 import downloader
+import util
 
 
 def login(tum_username: str, tum_password: str) -> webdriver:
@@ -17,6 +18,7 @@ def login(tum_username: str, tum_password: str) -> webdriver:
     if os.getenv('NO-SANDBOX') == '1':
         driver_options.add_argument("--no-sandbox")
     driver = webdriver.Chrome(options=driver_options)
+
     driver.get("https://live.rbg.tum.de/login")
     driver.find_element(By.ID, "username").send_keys(tum_username)
     driver.find_element(By.ID, "password").send_keys(tum_password)
@@ -31,20 +33,26 @@ def login(tum_username: str, tum_password: str) -> webdriver:
 def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_type) -> [(str, str)]:
     subject_url = "https://live.rbg.tum.de/course/" + subjects_identifier
     driver.get(subject_url)
+
     links_on_page = driver.find_elements_by_xpath(".//a")
-    video_urls: set[str] = set()
+    video_urls: [str] = []
     for link in links_on_page:
         link_url = link.get_attribute("href")
         if link_url and "https://live.rbg.tum.de/w/" in link_url:
-            video_urls.add(link_url)
-    video_urls = {url for url in video_urls if ("/CAM" not in url and "/PRES" not in url)}
-    video_playlists: set[(str, str)] = set()
+            video_urls.append(link_url)
+
+    video_urls = [url for url in video_urls if ("/CAM" not in url and "/PRES" not in url)]
+
+    video_playlists: [(str, str)] = []
     for video_url in video_urls:
         driver.get(video_url + "/" + camera_type)
         sleep(2)
         filename = driver.find_element_by_xpath("/html/body/div[2]/div/div/div[3]/h1").text.strip()
         playlist_url = get_playlist_url(driver.page_source)
-        video_playlists.add((filename, playlist_url))
+        video_playlists.append((filename, playlist_url))
+
+    video_playlists = util.dedup(video_playlists)
+
     return video_playlists
 
 
@@ -59,9 +67,11 @@ def get_playlist_url(source: str) -> str:
 def get_subjects(subjects: dict[str, (str, str)], destination_folder_path: Path, tmp_directory: Path,
                  tum_username: str, tum_password: str, semaphore: Semaphore):
     driver = login(tum_username, tum_password)
+
     for subject_name, (subjects_identifier, camera_type) in subjects.items():
         m3u8_playlists = get_video_links_of_subject(driver, subjects_identifier, camera_type)
         subject_folder = Path(destination_folder_path, subject_name)
         subject_folder.mkdir(exist_ok=True)
         downloader.download_list_of_videos(m3u8_playlists, subject_folder, tmp_directory, semaphore)
+
     driver.close()
