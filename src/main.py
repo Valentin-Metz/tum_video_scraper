@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
     parser.add_argument("-t", "--temp_dir",
                         help="Path for temporary files. Defaults to the system specific tmp folder. Optional.")
-    parser.add_argument("-d", "--maximum_parallel_downloads", default=3, type=int,
+    parser.add_argument("-d", "--maximum_parallel_downloads", type=int,
                         help="Maximal number of videos to download and convert in parallel. "
                              "Defaults to 3. Optional.")
 
