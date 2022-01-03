@@ -46,7 +46,7 @@ def download_and_cut_video(filename: str, playlist_url: str, output_file_path: P
         print(f'Output of ffmpeg to stderr:\n' + ffmpeg.stderr.decode('utf-8'), file=sys.stderr)
         return
 
-    print(f"Download of {filename} completed after {str(time.time() - download_start_time)}s")
+    print(f"Download of {filename} completed after {(time.time() - download_start_time):.0f}s")
     conversion_start_time = time.time()  # Track auto-editor time
     print(f"Starting conversion of {filename}")
 
@@ -69,9 +69,9 @@ def download_and_cut_video(filename: str, playlist_url: str, output_file_path: P
         print(f'Output of auto-editor to stderr:\n' + ffmpeg.stderr.decode('utf-8'), file=sys.stderr)
         return
 
-    print(f"Conversion of {filename} completed after {str(time.time() - conversion_start_time)}s")
+    print(f"Conversion of {filename} completed after {(time.time() - conversion_start_time):.0f}s")
     temporary_path.unlink()  # Delete original file
     Path(output_file_path.as_posix() + ".lock").unlink()  # Remove lock file
-    print(f"Done with {filename} after {str(time.time() - download_start_time)}s")
+    print(f"Completed {filename} after {(time.time() - download_start_time):.0f}s")
 
     semaphore.release()  # Release lock
