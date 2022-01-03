@@ -1,7 +1,7 @@
 import argparse
 import os
 import tempfile
-from multiprocessing import Process, Semaphore
+from multiprocessing import Semaphore
 from pathlib import Path
 
 import yaml
@@ -144,10 +144,8 @@ if __name__ == '__main__':
 
     # Process TUM-live videos
     if tum_live_subjects:
-        Process(target=tum_live.get_subjects,
-                args=(tum_live_subjects, destination_folder_path, tmp_directory, username, password, semaphore)).start()
+        tum_live.get_subjects(tum_live_subjects, destination_folder_path, tmp_directory, username, password, semaphore)
 
     # Process Panopto videos
     if panopto_folders:
-        Process(target=panopto.get_folders,
-                args=(panopto_folders, destination_folder_path, tmp_directory, username, password, semaphore)).start()
+        panopto.get_folders(panopto_folders, destination_folder_path, tmp_directory, username, password, semaphore)

@@ -1,4 +1,5 @@
 import argparse
+import os
 import re
 from multiprocessing import Semaphore
 from pathlib import Path
@@ -13,6 +14,8 @@ import downloader
 def login(tum_username: str, tum_password: str) -> webdriver:
     driver_options = webdriver.ChromeOptions()
     driver_options.add_argument("--headless")
+    if os.getenv('NO-SANDBOX') == '1':
+        driver_options.add_argument("--no-sandbox")
     driver = webdriver.Chrome(options=driver_options)
     driver.get("https://www.moodle.tum.de/login/index.php")
     driver.find_element(By.LINK_TEXT, "TUM LOGIN").click()

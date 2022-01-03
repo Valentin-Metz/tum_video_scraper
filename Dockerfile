@@ -13,6 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 RUN mkdir /app/output
 
+ENV NO-SANDBOX 1
+
 COPY ./src /app/src
 
 ENTRYPOINT [ "python", "/app/src/main.py", "-c", "/app/config.yml", "-o", "/app/output" ]
