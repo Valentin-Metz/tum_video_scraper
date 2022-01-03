@@ -1,14 +1,11 @@
 import argparse
 import os
 import re
-from multiprocessing import Semaphore
-from pathlib import Path
 from time import sleep
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-import downloader
 import util
 
 
@@ -64,16 +61,11 @@ def get_playlist_url(source: str) -> str:
     return playlist_url
 
 
-def get_subjects(subjects: dict[str, (str, str)], destination_folder_path: Path, tmp_directory: Path,
-                 tum_username: str, tum_password: str, semaphore: Semaphore):
+def get_subjects(subjects: dict[str, (str, str)], tum_username: str, tum_password: str, queue: [str, (str, str)]):
     driver = login(tum_username, tum_password)
-
     for subject_name, (subjects_identifier, camera_type) in subjects.items():
         m3u8_playlists = get_video_links_of_subject(driver, subjects_identifier, camera_type)
         m3u8_playlists = util.rename_duplicates(m3u8_playlists)
-        subject_folder = Path(destination_folder_path, subject_name)
-        subject_folder.mkdir(exist_ok=True)
-        print(f'Found {len(m3u8_playlists)} video(s) for "{subject_name}"')
-        downloader.download_list_of_videos(m3u8_playlists, subject_folder, tmp_directory, semaphore)
-
+        print(f'Found {len(m3u8_playlists)} videos for "{subject_name}"')
+        queue.append((subject_name, m3u8_playlists))
     driver.close()

@@ -6,6 +6,7 @@ from pathlib import Path
 
 import yaml
 
+import downloader
 import panopto
 import tum_live
 
@@ -138,14 +139,25 @@ if __name__ == '__main__':
         maximum_parallel_downloads = cfg['Maximum-Parallel-Downloads']
     if args.maximum_parallel_downloads:
         maximum_parallel_downloads = args.maximum_parallel_downloads
-    semaphore = Semaphore(maximum_parallel_downloads)  # keeps us from using massive amounts of RAM
+    semaphore = Semaphore(maximum_parallel_downloads)  # Keeps us from using massive amounts of RAM
 
-    print("Starting new run")
+    print("Starting new run!")
+    videos_for_subject: [str, (str, str)] = []
 
-    # Process TUM-live videos
+    # Scrape TUM-live videos
+    print("\nScanning TUM-live:")
     if tum_live_subjects:
-        tum_live.get_subjects(tum_live_subjects, destination_folder_path, tmp_directory, username, password, semaphore)
+        tum_live.get_subjects(tum_live_subjects, username, password, videos_for_subject)
 
-    # Process Panopto videos
+    # Scrape Panopto videos
+    print("\nScanning Panopto:")
     if panopto_folders:
-        panopto.get_folders(panopto_folders, destination_folder_path, tmp_directory, username, password, semaphore)
+        panopto.get_folders(panopto_folders, username, password, videos_for_subject)
+
+    # Download videos
+    print("\n--------------------\n")
+    print("Starting downloads:")
+    for subject, playlists in videos_for_subject:
+        subject_folder = Path(destination_folder_path, subject)
+        subject_folder.mkdir(exist_ok=True)
+        downloader.download_list_of_videos(playlists, subject_folder, tmp_directory, semaphore)

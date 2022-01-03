@@ -6,7 +6,7 @@ from multiprocessing import Process, Semaphore
 from pathlib import Path
 
 
-def download_list_of_videos(videos: (str, str), output_folder_path: Path, tmp_directory: Path, semaphore: Semaphore):
+def download_list_of_videos(videos: [(str, str)], output_folder_path: Path, tmp_directory: Path, semaphore: Semaphore):
     for filename, url in videos:
         filename = re.sub('[\\\\/:*?"<>|]|[\x00-\x20]', '_', filename) + ".mp4"  # Filter illegal filename chars
         output_file_path = Path(output_folder_path, filename)
@@ -26,7 +26,7 @@ def download_and_cut_video(filename: str, playlist_url: str, output_file_path: P
     temporary_path = Path(tmp_directory, filename + ".original")  # Download location
     download_start_time = time.time()  # Track download time
 
-    print(f"Starting download of {filename}")
+    print(f"Download of {filename} started")
     ffmpeg = subprocess.run([
         'ffmpeg',
         '-y',  # Overwrite output file if it already exists
@@ -48,7 +48,7 @@ def download_and_cut_video(filename: str, playlist_url: str, output_file_path: P
 
     print(f"Download of {filename} completed after {(time.time() - download_start_time):.0f}s")
     conversion_start_time = time.time()  # Track auto-editor time
-    print(f"Starting conversion of {filename}")
+    print(f"Conversion of {filename} started")
 
     auto_editor = subprocess.run([
         'auto-editor',

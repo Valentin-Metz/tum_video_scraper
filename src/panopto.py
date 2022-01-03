@@ -80,16 +80,11 @@ def get_m3u8_playlist(driver: webdriver, video_id: str) -> (str, str):
     return filename, playlist_url
 
 
-def get_folders(panopto_folders: dict[str, str], destination_folder_path: Path, tmp_directory: Path,
-                tum_username: str, tum_password: str, semaphore: Semaphore):
+def get_folders(panopto_folders: dict[str, str], tum_username: str, tum_password: str, queue: [str, (str, str)]):
     driver = login(tum_username, tum_password)
-
     for subject_name, folder_id in panopto_folders.items():
         m3u8_playlists = get_video_links_in_folder(driver, folder_id)
         m3u8_playlists = util.rename_duplicates(m3u8_playlists)
-        subject_folder = Path(destination_folder_path, subject_name)
-        subject_folder.mkdir(exist_ok=True)
-        print(f'Found {len(m3u8_playlists)} video(s) for "{subject_name}"')
-        downloader.download_list_of_videos(m3u8_playlists, subject_folder, tmp_directory, semaphore)
-
+        print(f'Found {len(m3u8_playlists)} videos for "{subject_name}"')
+        queue.append((subject_name, m3u8_playlists))
     driver.close()
