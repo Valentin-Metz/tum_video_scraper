@@ -70,6 +70,7 @@ def get_subjects(subjects: dict[str, (str, str)], destination_folder_path: Path,
 
     for subject_name, (subjects_identifier, camera_type) in subjects.items():
         m3u8_playlists = get_video_links_of_subject(driver, subjects_identifier, camera_type)
+        m3u8_playlists = util.rename_duplicates(m3u8_playlists)
         subject_folder = Path(destination_folder_path, subject_name)
         subject_folder.mkdir(exist_ok=True)
         downloader.download_list_of_videos(m3u8_playlists, subject_folder, tmp_directory, semaphore)

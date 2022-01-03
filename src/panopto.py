@@ -86,6 +86,7 @@ def get_folders(panopto_folders: dict[str, str], destination_folder_path: Path, 
 
     for subject_name, folder_id in panopto_folders.items():
         m3u8_playlists = get_video_links_in_folder(driver, folder_id)
+        m3u8_playlists = util.rename_duplicates(m3u8_playlists)
         subject_folder = Path(destination_folder_path, subject_name)
         subject_folder.mkdir(exist_ok=True)
         downloader.download_list_of_videos(m3u8_playlists, subject_folder, tmp_directory, semaphore)
