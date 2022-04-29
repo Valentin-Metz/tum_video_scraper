@@ -67,9 +67,13 @@ if __name__ == '__main__':
     parser.add_argument("-c", "--config_file", type=Path,
                         help="Path to a config file. "
                              "Command line arguments take priority over the config file. Optional.")
+
+    parser.add_argument("-j", "--jumpcut", action='store_true',
+                        help="Trim silence aka jumpcut. ")
     args = parser.parse_args()
 
     # Load the config file (if there is one)
+    cfg = None
     if args.config_file:
         if not os.path.isfile(args.config_file):
             raise argparse.ArgumentTypeError("The supplied CONFIG_FILE does not exist.")
@@ -141,6 +145,12 @@ if __name__ == '__main__':
         maximum_parallel_downloads = args.maximum_parallel_downloads
     semaphore = Semaphore(maximum_parallel_downloads)  # Keeps us from using massive amounts of RAM
 
+    jumpcut = False
+    if cfg and 'jumpcut' in cfg:
+        jumpcut = cfg['jumpcut']
+    if args.jumpcut:
+        jumpcut = args.jumpcut
+
     print("Starting new run!")
     videos_for_subject: [str, (str, str)] = []
 
@@ -160,4 +170,4 @@ if __name__ == '__main__':
     for subject, playlists in videos_for_subject:
         subject_folder = Path(destination_folder_path, subject)
         subject_folder.mkdir(exist_ok=True)
-        downloader.download_list_of_videos(playlists, subject_folder, tmp_directory, semaphore)
+        downloader.download_list_of_videos(playlists, subject_folder, tmp_directory, semaphore, jumpcut=jumpcut)
