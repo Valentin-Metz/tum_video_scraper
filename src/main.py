@@ -68,7 +68,7 @@ if __name__ == '__main__':
                         help="Path to a config file. "
                              "Command line arguments take priority over the config file. Optional.")
 
-    parser.add_argument("-j", "--jumpcut", action='store_true',
+    parser.add_argument("--no-jumpcut", action='store_false',
                         help="Trim silence aka jumpcut. ")
     args = parser.parse_args()
 
@@ -145,11 +145,11 @@ if __name__ == '__main__':
         maximum_parallel_downloads = args.maximum_parallel_downloads
     semaphore = Semaphore(maximum_parallel_downloads)  # Keeps us from using massive amounts of RAM
 
-    jumpcut = False
+    jumpcut = None
     if cfg and 'jumpcut' in cfg:
         jumpcut = cfg['jumpcut']
-    if args.jumpcut:
-        jumpcut = args.jumpcut
+    if jumpcut is None:
+        jumpcut = args.no_jumpcut
 
     print("Starting new run!")
     videos_for_subject: [str, (str, str)] = []
