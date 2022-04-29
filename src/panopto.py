@@ -54,7 +54,7 @@ def get_video_links_in_folder(driver: webdriver, folder_id: str) -> [(str, str)]
             video_urls.append(link_url)
 
     video_playlists: [(str, str)] = []
-    for video_url in video_urls:
+    for video_url in set(video_urls):
         video_id = video_url[-36:]
         video_playlists.append(get_m3u8_playlist(driver, video_id))
 
