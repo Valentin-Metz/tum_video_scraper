@@ -39,8 +39,7 @@ def filter_log(logs: list[dict], pred) -> list[str]:
         j = j["params"]
         if "request" not in j: continue
         j = j["request"]
-        if "url" not in j:
-            continue
+        if "url" not in j: continue
         url = j["url"]
         if pred(url):
             ret.append(url)
