@@ -8,16 +8,21 @@ from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+
 import downloader
 import util
 
 
 def login(tum_username: str, tum_password: str) -> webdriver:
+    capabilities = DesiredCapabilities.CHROME
+    capabilities["goog:loggingPrefs"] = {"performance": "ALL"}  # chromedriver 75+
+
     driver_options = webdriver.ChromeOptions()
     driver_options.add_argument("--headless")
     if os.getenv('NO-SANDBOX') == '1':
         driver_options.add_argument("--no-sandbox")
-    driver = webdriver.Chrome(options=driver_options)
+    driver = webdriver.Chrome(options=driver_options, desired_capabilities=capabilities)
 
     driver.get("https://www.moodle.tum.de/login/index.php")
     driver.find_element(By.LINK_TEXT, "TUM LOGIN").click()
@@ -68,14 +73,26 @@ def get_m3u8_playlist(driver: webdriver, video_id: str) -> (str, str):
     video_url = "https://tum.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=" + video_id
     driver.get(video_url)
 
+    playlist_url = None
+
     prefix = "\"VideoUrl\":\""
     postfix = "/master.m3u8"
     matches = re.search(prefix + '(.+?)' + postfix, driver.page_source)
-    if not matches:
+    if matches:
+        playlist_extracted_url = matches.group(1)
+        playlist_url = playlist_extracted_url.replace('\\', '') + postfix
+
+    if playlist_url is None:
+        driver.get("https://tum.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=" + video_id)
+        sleep(3)
+        urls = util.filter_log(driver.get_log("performance"), lambda x: x.endswith("index.m3u8"))
+        if len(urls) > 0:
+            playlist_url = urls[0] # maybe we could do this interactively, or should we just abort if multuple m3u8 were found
+
+    if playlist_url is None:
         print("Error on URL " + video_url + " - " + driver.title)
         return
-    playlist_extracted_url = matches.group(1)
-    playlist_url = playlist_extracted_url.replace('\\', '') + postfix
+
     filename = driver.title.strip()
     return filename, playlist_url
 
