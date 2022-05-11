@@ -32,6 +32,9 @@ def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_ty
     subject_url = "https://live.rbg.tum.de/course/" + subjects_identifier
     driver.get(subject_url)
 
+    # Display watched streams
+    driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/div[1]/div/div/div/button[2]/span").click()
+
     links_on_page = driver.find_elements_by_xpath(".//a")
     video_urls: [str] = []
     for link in links_on_page:
