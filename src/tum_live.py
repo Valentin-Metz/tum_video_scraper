@@ -11,12 +11,13 @@ import util
 
 def login(tum_username: str, tum_password: str) -> webdriver:
     driver_options = webdriver.ChromeOptions()
-    driver_options.add_argument("--headless")
+    # driver_options.add_argument("--headless")
     if os.getenv('NO-SANDBOX') == '1':
         driver_options.add_argument("--no-sandbox")
     driver = webdriver.Chrome(options=driver_options)
 
     driver.get("https://live.rbg.tum.de/login")
+    driver.find_element(By.XPATH, "/html/body/div[2]/div/div/div/button").click()
     driver.find_element(By.ID, "username").send_keys(tum_username)
     driver.find_element(By.ID, "password").send_keys(tum_password)
     driver.find_element(By.ID, "username").submit()
