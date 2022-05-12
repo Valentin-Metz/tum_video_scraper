@@ -1,14 +1,11 @@
 import argparse
 import os
 import re
-from multiprocessing import Semaphore
-from pathlib import Path
 from time import sleep
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-import downloader
 import util
 
 
