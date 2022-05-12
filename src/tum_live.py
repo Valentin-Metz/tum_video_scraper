@@ -34,6 +34,8 @@ def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_ty
 
     # Display watched streams
     driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/div[1]/div/div/div/button[2]/span").click()
+    # Sort streams in descending order
+    driver.find_element(By.XPATH, "/html/body/div[2]/div[2]/div[1]/div/div/div/button[1]/span").click()
 
     links_on_page = driver.find_elements(By.XPATH, ".//a")
     video_urls: [str] = []
