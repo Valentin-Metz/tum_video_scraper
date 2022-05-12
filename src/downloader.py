@@ -55,7 +55,6 @@ def download_and_cut_video(filename: str, playlist_url: str, output_file_path: P
         temporary_path,  # Input file
         '--silent_speed', '8',  # Speed multiplier while there is no audio
         '--video_codec', 'libx264',  # Video codec
-        '--constant_rate_factor', '30',  # Framerate
         '--no_open',  # Don't open the finished file
         '-o', output_file_path  # Output file
     ], capture_output=True)
