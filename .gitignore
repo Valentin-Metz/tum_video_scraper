@@ -2,6 +2,7 @@
 /venv
 /build
 /dist
-geckodriver.log
 *.spec
+geckodriver.log
 config.yml
+test_config.yml
