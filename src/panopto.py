@@ -84,7 +84,7 @@ def get_folders(panopto_folders: dict[str, str], tum_username: str, tum_password
     driver = login(tum_username, tum_password)
     for subject_name, folder_id in panopto_folders.items():
         m3u8_playlists = get_video_links_in_folder(driver, folder_id)
-        m3u8_playlists = util.rename_duplicates(m3u8_playlists)
+        m3u8_playlists = util.enumerate_list(m3u8_playlists)
         print(f'Found {len(m3u8_playlists)} videos for "{subject_name}"')
         queue.append((subject_name, m3u8_playlists))
     driver.close()

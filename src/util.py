@@ -11,14 +11,6 @@ def dedup(lst: []) -> []:
     return result
 
 
-# Append numbers to duplicate strings in [(duplicate, str)]
-# Source: https://stackoverflow.com/questions/65679401/rename-duplicates-in-python-list
-def rename_duplicates(list_of_tuples: [(str, str)]) -> [(str, str)]:
-    seen = {}
-    for i, (a, b) in enumerate(list_of_tuples):
-        if a not in seen:
-            seen[a] = 0
-        else:
-            seen[a] += 1
-            list_of_tuples[i] = (list_of_tuples[i][0] + f'_{seen[a]}', b)
-    return list_of_tuples
+# Prepend the index of a list item to the first string in its tuple
+def enumerate_list(list_of_tuples: [(str, str)]) -> [(str, str)]:
+    return [(f'{index:03d}_{name}', url) for index, (name, url) in enumerate(list_of_tuples)]

@@ -69,7 +69,7 @@ def get_subjects(subjects: dict[str, (str, str)], tum_username: str, tum_passwor
     driver = login(tum_username, tum_password)
     for subject_name, (subjects_identifier, camera_type) in subjects.items():
         m3u8_playlists = get_video_links_of_subject(driver, subjects_identifier, camera_type)
-        m3u8_playlists = util.rename_duplicates(m3u8_playlists)
+        m3u8_playlists = util.enumerate_list(m3u8_playlists)
         print(f'Found {len(m3u8_playlists)} videos for "{subject_name}"')
         queue.append((subject_name, m3u8_playlists))
     driver.close()
