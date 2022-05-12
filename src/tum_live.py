@@ -61,8 +61,14 @@ def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_ty
 
 def get_playlist_url(source: str) -> str:
     prefix = 'https://stream.lrz.de/vod/_definst_/mp4:tum/RBG/'
-    postfix = '.mp4/playlist.m3u8'
-    playlist_extracted_url = re.search(prefix + '(.+?)' + postfix, source).group(1)
+    postfix = '/playlist.m3u8'
+    playlist_extracted_url = re.search(prefix + '(.+?)' + postfix, source)
+    if not playlist_extracted_url:
+        prefix = "https://live.stream.lrz.de/livetum/"
+        playlist_extracted_url = re.search(prefix + '(.+?)' + postfix, source)
+    if not playlist_extracted_url:
+        raise Exception("Could not extract playlist URL from TUM-live! Page source:\n" + source)
+    playlist_extracted_url = playlist_extracted_url.group(1)
     playlist_url = prefix + playlist_extracted_url + postfix
     return playlist_url
 
