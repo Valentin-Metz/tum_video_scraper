@@ -145,13 +145,13 @@ if __name__ == '__main__':
     videos_for_subject: [str, (str, str)] = []
 
     # Scrape TUM-live videos
-    print("\nScanning TUM-live:")
     if tum_live_subjects:
+        print("\nScanning TUM-live:")
         tum_live.get_subjects(tum_live_subjects, username, password, videos_for_subject)
 
     # Scrape Panopto videos
-    print("\nScanning Panopto:")
     if panopto_folders:
+        print("\nScanning Panopto:")
         panopto.get_folders(panopto_folders, username, password, videos_for_subject)
 
     # Download videos
