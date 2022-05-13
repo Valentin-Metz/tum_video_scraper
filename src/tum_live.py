@@ -45,6 +45,7 @@ def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_ty
             video_urls.append(link_url)
 
     video_urls = [url for url in video_urls if ("/CAM" not in url and "/PRES" not in url)]
+    video_urls = list(dict.fromkeys(video_urls))  # deduplicate
 
     video_playlists: [(str, str)] = []
     for video_url in video_urls:
@@ -53,8 +54,6 @@ def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_ty
         filename = driver.find_element(By.XPATH, "/html/body/div[2]/div/div[2]/div[1]/h1").text.strip()
         playlist_url = get_playlist_url(driver.page_source)
         video_playlists.append((filename, playlist_url))
-
-    video_playlists = util.dedup(video_playlists)
 
     return video_playlists
 
