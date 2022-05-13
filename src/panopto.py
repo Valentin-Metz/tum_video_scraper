@@ -5,6 +5,7 @@ from time import sleep
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from seleniumrequests import Chrome
 
 import util
 
@@ -14,7 +15,7 @@ def login(tum_username: str, tum_password: str) -> webdriver:
     driver_options.add_argument("--headless")
     if os.getenv('NO-SANDBOX') == '1':
         driver_options.add_argument("--no-sandbox")
-    driver = webdriver.Chrome(options=driver_options)
+    driver = Chrome(options=driver_options)
 
     driver.get("https://www.moodle.tum.de/login/index.php")
     driver.find_element(By.LINK_TEXT, "TUM LOGIN").click()
@@ -49,13 +50,12 @@ def get_video_links_in_folder(driver: webdriver, folder_id: str) -> [(str, str)]
         link_url = link.get_attribute("href")
         if link_url and "https://tum.cloud.panopto.eu/Panopto/Pages/Viewer.aspx" in link_url:
             video_urls.append(link_url)
+    video_urls = list(dict.fromkeys(video_urls))  # deduplicate
 
     video_playlists: [(str, str)] = []
     for video_url in video_urls:
         video_id = video_url[-36:]
         video_playlists.append(get_m3u8_playlist(driver, video_id))
-
-    video_playlists = util.dedup(video_playlists)
     video_playlists.reverse()
 
     return video_playlists
@@ -64,15 +64,17 @@ def get_video_links_in_folder(driver: webdriver, folder_id: str) -> [(str, str)]
 def get_m3u8_playlist(driver: webdriver, video_id: str) -> (str, str):
     video_url = "https://tum.cloud.panopto.eu/Panopto/Pages/Embed.aspx?id=" + video_id
     driver.get(video_url)
+    request_url = "https://tum.cloud.panopto.eu/Panopto/Pages/Viewer/DeliveryInfo.aspx?deliveryId="
+    post_response = driver.request('POST', request_url + video_id)
 
-    prefix = "\"VideoUrl\":\""
+    prefix = "https://"
     postfix = "/master.m3u8"
-    matches = re.search(prefix + '(.+?)' + postfix, driver.page_source)
+    matches = re.search(prefix + '(.+?)' + postfix, post_response.text)
     if not matches:
         print("Error on URL " + video_url + " - " + driver.title)
         return
     playlist_extracted_url = matches.group(1)
-    playlist_url = playlist_extracted_url.replace('\\', '') + postfix
+    playlist_url = prefix + playlist_extracted_url.replace('\\', '') + postfix
     filename = driver.title.strip()
     return filename, playlist_url
 

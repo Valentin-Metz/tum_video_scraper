@@ -1,5 +1,6 @@
 auto-editor>=21.51.1
 requests>=2.27.1
 selenium>=4.1.5
+selenium-requests>=1.4.1
 BeautifulSoup4>=4.11.1
 PyYAML>=6.0
