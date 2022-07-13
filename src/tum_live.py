@@ -46,7 +46,7 @@ def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_ty
     for video_url in video_urls:
         driver.get(video_url + "/" + camera_type)
         sleep(2)
-        filename = driver.find_element(By.XPATH, "/html/body/div[2]/div/div[2]/div[1]/h1").text.strip()
+        filename = driver.find_element(By.XPATH, "/html/body/div[2]/div/div[2]/div[1]/div[1]/h1").text.strip()
         playlist_url = get_playlist_url(driver.page_source)
         video_playlists.append((filename, playlist_url))
 
