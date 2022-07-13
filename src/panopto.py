@@ -44,7 +44,7 @@ def get_video_links_in_folder(driver: webdriver, folder_id: str) -> [(str, str)]
         print("Folder-ID incorrect: " + folder_id)
         raise Exception
 
-    links_on_page = driver.find_elements_by_xpath(".//a")
+    links_on_page = driver.find_elements(By.XPATH, ".//a")
     video_urls: [str] = []
     for link in links_on_page:
         link_url = link.get_attribute("href")
