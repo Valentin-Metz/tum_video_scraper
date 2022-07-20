@@ -1,4 +1,4 @@
-auto-editor==22.27.1
+auto-editor==22.28.1
 requests==2.28.1
 selenium==4.3.0
 selenium-requests==2.0.0
