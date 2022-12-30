@@ -70,6 +70,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # Load the config file (if there is one)
+    cfg = {}
     if args.config_file:
         if not os.path.isfile(args.config_file):
             raise argparse.ArgumentTypeError("The supplied CONFIG_FILE does not exist.")
@@ -78,7 +79,7 @@ if __name__ == '__main__':
 
     # Parse the destination folder
     destination_folder_path = None
-    if cfg and 'Output-Folder' in cfg:
+    if 'Output-Folder' in cfg:
         destination_folder_path = Path(cfg['Output-Folder'])
     if args.output_folder:
         destination_folder_path = args.output_folder
@@ -87,7 +88,7 @@ if __name__ == '__main__':
 
     # Parse the tmp folder
     tmp_directory = None
-    if cfg and 'Temp-Dir' in cfg:
+    if 'Temp-Dir' in cfg:
         tmp_directory = Path(cfg['Temp-Dir'])
     if args.temp_dir:
         tmp_directory = args.temp_dir
@@ -100,7 +101,7 @@ if __name__ == '__main__':
 
     # Parse tum-live subjects
     tum_live_subjects = {}
-    if cfg and 'TUM-live' in cfg:
+    if 'TUM-live' in cfg:
         tum_live_subjects.update(
             {key: parse_tum_live_subject_identifier(value) for key, value in cfg['TUM-live'].items()})
     if args.tum_live:
@@ -108,21 +109,21 @@ if __name__ == '__main__':
 
     # Parse panopto folders
     panopto_folders = {}
-    if cfg and 'Panopto' in cfg:
+    if 'Panopto' in cfg:
         panopto_folders.update(cfg['Panopto'])
     if args.panopto:
         panopto_folders.update({a: b for a, b in args.panopto})
 
     # Parse username
     username = None
-    if cfg and 'Username' in cfg:
+    if 'Username' in cfg:
         username = cfg['Username']
     if args.username:
         username = args.username
 
     # Parse password
     password = None
-    if cfg and 'Password' in cfg:
+    if 'Password' in cfg:
         password = cfg['Password']
     if args.password:
         password = args.password
@@ -135,7 +136,7 @@ if __name__ == '__main__':
 
     # Parse maximum amount of parallel downloads
     maximum_parallel_downloads = 3
-    if cfg and 'Maximum-Parallel-Downloads' in cfg:
+    if 'Maximum-Parallel-Downloads' in cfg:
         maximum_parallel_downloads = cfg['Maximum-Parallel-Downloads']
     if args.maximum_parallel_downloads:
         maximum_parallel_downloads = args.maximum_parallel_downloads
