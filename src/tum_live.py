@@ -41,6 +41,7 @@ def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_ty
 
     video_urls = [url for url in video_urls if ("/CAM" not in url and "/PRES" not in url)]
     video_urls = list(dict.fromkeys(video_urls))  # deduplicate
+    sort_order = driver.find_element(By.XPATH, "/html/body/div[3]/div[2]/div[1]/div/div/div/button[1]/span").text
 
     video_playlists: [(str, str)] = []
     for video_url in video_urls:
@@ -50,7 +51,9 @@ def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_ty
         playlist_url = get_playlist_url(driver.page_source)
         video_playlists.append((filename, playlist_url))
 
-    video_playlists.reverse()
+    if "ASC" in sort_order:
+        video_playlists.reverse()
+
     return video_playlists
 
 
