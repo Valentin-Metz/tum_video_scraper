@@ -1,6 +1,6 @@
-auto-editor==22.48.1
-requests==2.28.1
-selenium==4.7.2
-selenium-requests==2.0.2
+auto-editor==23.4.1
+requests==2.28.2
+selenium==4.8.0
+selenium-requests==2.0.3
 BeautifulSoup4==4.11.1
 PyYAML==6.0

@@ -47,7 +47,7 @@ def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_ty
     for video_url in video_urls:
         driver.get(video_url + "/" + camera_type)
         sleep(2)
-        filename = driver.find_element(By.XPATH, "/html/body/div[4]/div/div[2]/div[1]/div[1]/h1").text.strip()
+        filename = driver.find_element(By.XPATH, "/html/body/div[5]/div/div[3]/div/div[1]/h1").text.strip()
         playlist_url = get_playlist_url(driver.page_source)
         video_playlists.append((filename, playlist_url))
 
@@ -58,16 +58,10 @@ def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_ty
 
 
 def get_playlist_url(source: str) -> str:
-    prefix = 'https://stream.lrz.de/vod/_definst_/mp4:tum/RBG/'
-    postfix = '/playlist.m3u8'
-    playlist_extracted_url = re.search(prefix + '(.+?)' + postfix, source)
-    if not playlist_extracted_url:
-        prefix = "https://live.stream.lrz.de/livetum/"
-        playlist_extracted_url = re.search(prefix + '(.+?)' + postfix, source)
-    if not playlist_extracted_url:
+    playlist_extracted_match = re.search("(https://\S+?/playlist\.m3u8.*?)[\'|\"]", source)
+    if not playlist_extracted_match:
         raise Exception("Could not extract playlist URL from TUM-live! Page source:\n" + source)
-    playlist_extracted_url = playlist_extracted_url.group(1)
-    playlist_url = prefix + playlist_extracted_url + postfix
+    playlist_url = playlist_extracted_match.group(1)
     return playlist_url
 
 
