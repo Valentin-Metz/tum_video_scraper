@@ -1,5 +1,8 @@
 [![CI test](https://github.com/Valentin-Metz/tum_video_scraper/actions/workflows/tum_video_scraper_ci.yml/badge.svg)](https://github.com/Valentin-Metz/tum_video_scraper/actions/workflows/tum_video_scraper_ci.yml)
 [![CodeQL](https://github.com/Valentin-Metz/tum_video_scraper/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/Valentin-Metz/tum_video_scraper/actions/workflows/codeql-analysis.yml)
+[![TUM](https://custom-icon-badges.demolab.com/badge/TUM-exzellent-0065bd.svg?logo=tum_logo_2023)](https://www.tum.de/)
+[![TUM-Live](https://custom-icon-badges.demolab.com/badge/TUM--Live-live-e5312b.svg?logo=tum_live_logo)](https://live.rbg.tum.de/)
+[![TUM-Panopto](https://custom-icon-badges.demolab.com/badge/TUM--Panopto-online-11773d.svg?logo=panopto_icon_2015)](https://tum.cloud.panopto.eu/)
 # Installation
 
 Required system dependencies:
