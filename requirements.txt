@@ -5,3 +5,4 @@ selenium-requests==2.0.3
 BeautifulSoup4==4.11.2
 PyYAML==6.0
 pytest==7.2.1
+pytest-xdist==3.2.0
