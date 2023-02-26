@@ -10,12 +10,16 @@ from seleniumrequests import Chrome
 import util
 
 
-def login(tum_username: str, tum_password: str) -> webdriver:
+def login(tum_username: str | None, tum_password: str | None) -> webdriver:
     driver_options = webdriver.ChromeOptions()
     driver_options.add_argument("--headless")
     if os.getenv('NO-SANDBOX') == '1':
         driver_options.add_argument("--no-sandbox")
     driver = Chrome(options=driver_options)
+
+    if not tum_username or not tum_password:
+        driver.close()
+        raise argparse.ArgumentTypeError("You must provide a valid TUM username and password to use Panopto")
 
     driver.get("https://www.moodle.tum.de/login/index.php")
     driver.find_element(By.LINK_TEXT, "TUM LOGIN").click()
@@ -79,11 +83,12 @@ def get_m3u8_playlist(driver: webdriver, video_id: str) -> (str, str):
     return filename, playlist_url
 
 
-def get_folders(panopto_folders: dict[str, str], tum_username: str, tum_password: str, queue: [str, (str, str)]):
+def get_folders(panopto_folders: dict[str, str], tum_username: str | None, tum_password: str | None,
+                queue: [str, [(str, str)]]):
     driver = login(tum_username, tum_password)
     for subject_name, folder_id in panopto_folders.items():
         m3u8_playlists = get_video_links_in_folder(driver, folder_id)
         m3u8_playlists = util.enumerate_list(m3u8_playlists)
         print(f'Found {len(m3u8_playlists)} videos for "{subject_name}"')
-        queue.append((subject_name, m3u8_playlists))
+        queue[subject_name] = m3u8_playlists
     driver.close()

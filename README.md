@@ -1,3 +1,5 @@
+[![CI test](https://github.com/Valentin-Metz/tum_video_scraper/actions/workflows/tum_video_scraper_ci.yml/badge.svg)](https://github.com/Valentin-Metz/tum_video_scraper/actions/workflows/tum_video_scraper_ci.yml)
+[![CodeQL](https://github.com/Valentin-Metz/tum_video_scraper/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/Valentin-Metz/tum_video_scraper/actions/workflows/codeql-analysis.yml)
 # Installation
 
 Required system dependencies:
