@@ -131,8 +131,8 @@ def parse_maximum_parallel_downloads(args: argparse.Namespace, cfg) -> Semaphore
 
 
 def parse_username_password(args: argparse.Namespace, cfg) -> (str | None, str | None):
-    username = cfg.get('Username') or args.username
-    password = cfg.get('Password') or args.password
+    username = args.username or cfg.get('Username')
+    password = args.password or cfg.get('Password')
 
     # Allows setting the password from stdin
     if username and not password:
