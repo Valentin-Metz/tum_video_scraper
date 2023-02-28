@@ -46,6 +46,9 @@ def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_ty
 
     video_urls = [url for url in video_urls if ("/CAM" not in url and "/PRES" not in url and "/chat" not in url)]
     video_urls = list(dict.fromkeys(video_urls))  # deduplicate
+    if not video_urls:
+        return []  # Empty lecture series
+
     sort_order = driver.find_element(By.ID, "sort_order_button").text
 
     video_playlists: [(str, str)] = []
