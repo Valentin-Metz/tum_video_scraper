@@ -189,7 +189,7 @@ def main():
     # Download videos
     print("\n--------------------\n")
     print("Starting downloads:")
-    for subject, playlists in videos_for_subject:
+    for subject, playlists in videos_for_subject.items():
         subject_folder = Path(destination_folder_path, subject)
         subject_folder.mkdir(exist_ok=True)
         downloader.download_list_of_videos(playlists, subject_folder, tmp_folder_path, semaphore)
