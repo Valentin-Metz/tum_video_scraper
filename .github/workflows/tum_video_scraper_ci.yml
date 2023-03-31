@@ -36,7 +36,7 @@ jobs:
         flake8 . --count --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest -n auto
+        pytest -n auto --reruns 3 --reruns-delay 60
       env:
         TUM_USERNAME: ${{ secrets.TUM_USERNAME }}
         TUM_PASSWORD: ${{ secrets.TUM_PASSWORD }}
