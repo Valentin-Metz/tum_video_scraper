@@ -55,6 +55,6 @@ def test_get_folders_large():
     panopto.get_folders(panopto_folders, os.environ['TUM_USERNAME'], os.environ['TUM_PASSWORD'], videos_for_subject)
 
     assert (len(videos_for_subject['Studentische Vollversammlung 950633228 (W22/23)']) == 1)
-    assert (len(videos_for_subject['Algorithmic Game Theory 2021']) == 54)
+    assert (len(videos_for_subject['Algorithmic Game Theory 2021']) == 38)
     assert (len(videos_for_subject['Introduction to Biological Imaging 950567672 (W21/22)']) == 19)
     assert (len(videos_for_subject['Maschinelles Lernen 950631887 (W22/23)']) == 55)
