@@ -56,8 +56,9 @@ def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_ty
         driver.get(video_url + "/" + camera_type)
         sleep(2)
         filename = driver.find_element(By.XPATH, "//h1").text.strip()
-        playlist_url = get_playlist_url(driver.page_source)
-        video_playlists.append((filename, playlist_url))
+        if not ("Starts in more than a day" or "Stream is due") in driver.page_source:
+            playlist_url = get_playlist_url(driver.page_source)
+            video_playlists.append((filename, playlist_url))
 
     if "ASC" in sort_order:
         video_playlists.reverse()
