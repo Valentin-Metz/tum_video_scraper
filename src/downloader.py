@@ -14,17 +14,22 @@ def download_list_of_videos(videos: [(str, str)],
     for filename, url in videos:
         filename = re.sub('[\\\\/:*?"<>|]|[\x00-\x20]', '_', filename) + ".mp4"  # Filter illegal filename chars
         output_file_path = Path(output_folder_path, filename)
+        output_file_path_jc = Path(re.sub(r'\.(?=[^.]*$)', '_jc.', output_file_path.as_posix()))  # Add _jc to filename
         """We use locks to prevent processing the same video twice (e.g. if we run in multiple independent instances)"""
         """Locks can also be created by the user to keep us from downloading a specific video"""
         if not (Path(output_file_path.as_posix() + ".lock").exists()  # Check if lock file exists
-                or output_file_path.exists()):  # Check if file exists (we downloaded and converted it already)
+                or output_file_path.exists()
+                or output_file_path_jc.exists()):  # Check if file exists (we downloaded and converted it already)
             Path(output_file_path.as_posix() + ".lock").touch()  # Create lock file
             Process(target=download,  # Download video in separate process
-                    args=(filename, url, output_file_path, tmp_directory, keep_original, jump_cut, semaphore)).start()
+                    args=(filename, url,
+                          output_file_path, output_file_path_jc, tmp_directory,
+                          keep_original, jump_cut,
+                          semaphore)).start()
 
 
 def download(filename: str, playlist_url: str,
-             output_file_path: Path, tmp_directory: Path,
+             output_file_path: Path, output_file_path_jc: Path, tmp_directory: Path,
              keep_original: bool, jump_cut: bool,
              semaphore: Semaphore):
     print(f"Download of {filename} started")
@@ -54,7 +59,10 @@ def download(filename: str, playlist_url: str,
     if keep_original:
         shutil.copy2(temporary_path, output_file_path)  # Copy original file to output location
     if jump_cut:
-        cut_video(filename, playlist_url, output_file_path, temporary_path, download_start_time, semaphore)
+        cut_video(filename, playlist_url,
+                  output_file_path, output_file_path_jc, temporary_path,
+                  download_start_time,
+                  semaphore)
     else:
         temporary_path.unlink()  # Delete original file
         Path(output_file_path.as_posix() + ".lock").unlink()  # Remove lock file
@@ -64,12 +72,11 @@ def download(filename: str, playlist_url: str,
 
 
 def cut_video(filename: str, playlist_url: str,
-              output_file_path: Path, input_path: Path,
+              output_file_path: Path, output_file_path_jc: Path, input_path: Path,
               download_start_time: float,
               semaphore: Semaphore):
     print(f"Conversion of {filename} started")
     conversion_start_time = time.time()  # Track auto-editor time
-    output_file_path_jc = Path(re.sub(r'\.(?=[^.]*$)', '_jc.', output_file_path.as_posix()))  # Add _jc to filename
     auto_editor = subprocess.run([
         'auto-editor',
         input_path,  # Input file
