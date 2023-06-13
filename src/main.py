@@ -52,16 +52,21 @@ def parse_command_line_arguments():
     parser.add_argument("-u", "--username", help="TUM-Username (go42tum)", type=str)
     parser.add_argument("-p", "--password", help="TUM-Password (must fit to the TUM-Username)", type=str)
 
+    parser.add_argument("-k", "--keep", type=bool, default=True,
+                        help="Whether to keep the original file of a downloaded video. Defaults to True. Optional.")
+    parser.add_argument("-j", "--jump_cut", type=bool, default=True,
+                        help="Whether to jump-cut the videos or not. Defaults to True. Optional.")
+
     parser.add_argument("-o", "--output_folder", type=Path,
                         help="Path to the output folder. Downloaded and converted videos get saved here.")
-
-    parser.add_argument("-t", "--temp_dir",
+    parser.add_argument("-t", "--temp_dir", type=Path,
                         help="Path for temporary files. Defaults to the system specific tmp folder. Optional.")
+
     parser.add_argument("-d", "--maximum_parallel_downloads", type=int,
                         help="Maximal number of videos to download and convert in parallel. Defaults to 3. Optional.")
 
     parser.add_argument("-c", "--config_file", type=Path,
-                        help="Path to a config file. Command line arguments take priority over the config file. Optional.")
+                        help="Path to a config file. Command line arguments take priority over config file. Optional.")
     return parser.parse_args()
 
 
@@ -120,6 +125,20 @@ def parse_panopto_folders(args: argparse.Namespace, cfg) -> dict[str, str]:
     return panopto_folders
 
 
+def parse_keep_original_and_jump_cut(args: argparse.Namespace, cfg) -> (bool, bool):
+    keep_original = True
+    jump_cut = True
+    if 'Keep-Original-File' in cfg:
+        keep_original = cfg['Keep-Original-File']
+    if 'Jumpcut' in cfg:
+        jump_cut = cfg['Jumpcut']
+    if args.keep:
+        keep_original = args.keep
+    if args.jump_cut:
+        jump_cut = args.jump_cut
+    return keep_original, jump_cut
+
+
 def parse_maximum_parallel_downloads(args: argparse.Namespace, cfg) -> Semaphore:
     maximum_parallel_downloads = 3
     if 'Maximum-Parallel-Downloads' in cfg:
@@ -148,6 +167,8 @@ def parse_arguments():
     tum_live_subjects = parse_tum_live_subjects(args, cfg)
     panopto_folders = parse_panopto_folders(args, cfg)
 
+    (keep_original, jump_cut) = parse_keep_original_and_jump_cut(args, cfg)
+
     destination_folder_path = parse_destination_folder(args, cfg)
     tmp_folder_path = parse_tmp_folder(args, cfg)
 
@@ -155,7 +176,11 @@ def parse_arguments():
 
     (username, password) = parse_username_password(args, cfg)
 
-    return tum_live_subjects, panopto_folders, destination_folder_path, tmp_folder_path, semaphore, username, password
+    return tum_live_subjects, panopto_folders, \
+        keep_original, jump_cut, \
+        destination_folder_path, tmp_folder_path, \
+        semaphore, \
+        username, password
 
 
 def main():
@@ -165,6 +190,8 @@ def main():
     # Parse arguments
     tum_live_subjects, \
         panopto_folders, \
+        keep_original, \
+        jump_cut, \
         destination_folder_path, \
         tmp_folder_path, \
         semaphore, \
@@ -192,7 +219,10 @@ def main():
     for subject, playlists in videos_for_subject.items():
         subject_folder = Path(destination_folder_path, subject)
         subject_folder.mkdir(exist_ok=True)
-        downloader.download_list_of_videos(playlists, subject_folder, tmp_folder_path, semaphore)
+        downloader.download_list_of_videos(playlists,
+                                           subject_folder, tmp_folder_path,
+                                           keep_original, jump_cut,
+                                           semaphore)
 
 
 if __name__ == '__main__':

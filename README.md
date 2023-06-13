@@ -3,6 +3,7 @@
 [![TUM](https://custom-icon-badges.demolab.com/badge/TUM-exzellent-0065bd.svg?logo=tum_logo_2023)](https://www.tum.de/)
 [![TUM-Live](https://custom-icon-badges.demolab.com/badge/TUM--Live-live-e5312b.svg?logo=tum_live_logo)](https://live.rbg.tum.de/)
 [![TUM-Panopto](https://custom-icon-badges.demolab.com/badge/TUM--Panopto-online-11773d.svg?logo=panopto_icon_2015)](https://tum.cloud.panopto.eu/)
+
 # Installation
 
 Required system dependencies:
@@ -63,6 +64,9 @@ Optional arguments:
 
 --username: Your TUM-Username (Example: go42tum)
 --password: The password for your TUM-Username (Example: "hunter2")
+
+--keep: Keep the original version of a downloaded video insted of only the jump-cutted ones. Defaults to true.
+--jumpcut: Save a jump-cutted version of the video (fast-forwarding frames with silence). Defaults to true.
 
 --temp_dir: Allows you to spcify a custom temp-directory. Usually the system-temp-folder will be used. You probably won't need this.
 --maximum_parallel_downloads: Allows you to specify how many videos we download and convert at a time. Conversion uses a lot of RAM, so be careful with this. The default is 3.

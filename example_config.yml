@@ -7,6 +7,9 @@ Panopto:
 Username: "go42tum"
 Password: "hunter2"
 
+Keep-Original-File: true
+Jumpcut: true
+
 Output-Folder: "/mnt/NAS/Video/Lectures/"
 
 Maximum-Parallel-Downloads: 3
