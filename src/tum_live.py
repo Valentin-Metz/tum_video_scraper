@@ -18,7 +18,7 @@ def login(tum_username: str | None, tum_password: str | None) -> webdriver:
 
     if tum_username:
         driver.get("https://live.rbg.tum.de/login")
-        driver.find_element(By.XPATH, "/html/body/div[2]/div/div/div/button").click()
+        driver.find_element(By.XPATH, "/html/body/main/section/article/div/button").click()
         driver.find_element(By.ID, "username").send_keys(tum_username)
         driver.find_element(By.ID, "password").send_keys(tum_password)
         driver.find_element(By.ID, "username").submit()
@@ -26,15 +26,12 @@ def login(tum_username: str | None, tum_password: str | None) -> webdriver:
         if "Couldn't log in. Please double check your credentials." in driver.page_source:
             driver.close()
             raise argparse.ArgumentTypeError("Username or password incorrect")
-    else:
-        driver.get("https://live.rbg.tum.de/")
-        sleep(2)
-
+    driver.get("https://live.rbg.tum.de/old/")
     return driver
 
 
 def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_type) -> [(str, str)]:
-    subject_url = "https://live.rbg.tum.de/course/" + subjects_identifier
+    subject_url = "https://live.rbg.tum.de/old/course/" + subjects_identifier
     driver.get(subject_url)
 
     links_on_page = driver.find_elements(By.XPATH, ".//a")
