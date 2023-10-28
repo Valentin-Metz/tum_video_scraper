@@ -50,8 +50,8 @@ Optional arguments:
 
 --tum_live: Download a subject from TUM-live (subject_name:subject_identifier:camera_type)
     subject_name: Will be used as the folder name. Freely choosable by you.
-    subject_identifier: Can be found in the URL of your chosen subject
-        (Example: https://live.rbg.tum.de/course/2021/W/it-sec - "2021/W/it-sec" is the subject_identifier for videos of this subject)
+    subject_identifier: Can be found in the URL of your chosen subject. For now please make sure to use https://live.rbg.tum.de/old/
+        (Example: https://live.rbg.tum.de/old/course/2021/W/it-sec - "2021/W/it-sec" is the subject_identifier for videos of this subject)
     camera_type: The camera-view to download
         COMB: Presentation slides fused with speaker-camera
         PRES: Presentation slides
