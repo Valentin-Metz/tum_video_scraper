@@ -5,17 +5,17 @@ from time import sleep
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from seleniumrequests import Chrome
+from seleniumrequests import Firefox
 
 import util
 
 
 def login(tum_username: str | None, tum_password: str | None) -> webdriver:
-    driver_options = webdriver.ChromeOptions()
+    driver_options = webdriver.FirefoxOptions()
     driver_options.add_argument("--headless")
     if os.getenv('NO-SANDBOX') == '1':
         driver_options.add_argument("--no-sandbox")
-    driver = Chrome(options=driver_options)
+    driver = Firefox(options=driver_options)
 
     if not tum_username or not tum_password:
         driver.close()

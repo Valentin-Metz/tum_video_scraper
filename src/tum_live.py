@@ -10,11 +10,11 @@ import util
 
 
 def login(tum_username: str | None, tum_password: str | None) -> webdriver:
-    driver_options = webdriver.ChromeOptions()
+    driver_options = webdriver.FirefoxOptions()
     driver_options.add_argument("--headless")
     if os.getenv('NO-SANDBOX') == '1':
         driver_options.add_argument("--no-sandbox")
-    driver = webdriver.Chrome(options=driver_options)
+    driver = webdriver.Firefox(options=driver_options)
 
     if tum_username:
         driver.get("https://live.rbg.tum.de/login")
