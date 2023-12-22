@@ -4,20 +4,69 @@
 [![TUM-Live](https://custom-icon-badges.demolab.com/badge/TUM--Live-live-e5312b.svg?logo=tum_live_logo)](https://live.rbg.tum.de/)
 [![TUM-Panopto](https://custom-icon-badges.demolab.com/badge/TUM--Panopto-online-11773d.svg?logo=panopto_icon_2015)](https://tum.cloud.panopto.eu/)
 
+# Docker
+
+The suggested way to run this project is with [Docker](https://docs.docker.com/engine/reference/commandline/run/):
+
+```bash
+docker run -it -v config.yml:/app/config.yml -v target_location:/app/output ghcr.io/valentin-metz/tum_video_scraper:master
+```
+
+You'll need to link in the configuration file `config.yml`.
+You can find an example in the root of this repository under `example_config.yml`.
+The output folder you specify in the config file will be the target location *inside* the docker container,
+so make sure to mount your target location to `/app/output`.
+
+# How to find subject identifiers?
+
+Subject identifiers are used to specify the subjects you want to download.
+
+## TUM-Live:
+
+For TUM-Live, you can find them here: https://live.rbg.tum.de/old/.
+After you select a lecture series, check the URL for the subject identifier.
+
+Example:
+`https://live.rbg.tum.de/old/course/2023/W/NetSec`
+
+In this case, the subject identifier is `2023/W/NetSec`.
+
+Finally, you can specify the video stream you want to download.
+Usually TUM-Live offers three:
+
+1. The combined view (specified with `:COMB` after the subject identifier)
+2. The presentation view (specified with `:PRES` after the subject identifier)
+3. The presenter camera view (specified with `:CAM` after the subject identifier)
+
+## Panopto:
+
+For Panopto, you need to supply a `folderID`.
+You can find these in the URL of the folder you want to download.
+
+Example: `https://tum.cloud.panopto.eu/Panopto/Pages/Sessions/List.aspx#folderID=%22a150c6d5-6cbe-40b0-8dc1-ad0a00967dfb%22`
+
+In this case, `a150c6d5-6cbe-40b0-8dc1-ad0a00967dfb` would be the `folderID`.
+
+-----
+
+You won't need anything below this line if you are running from Docker.
+
+-----
+
 # Installation
 
-Required system dependencies:
+If you want to run this project directly from the python source,
+you'll need to install the following system dependencies:
 
 ```
-python  >= 3.9.9
-ffmpeg  >= 4.4.1
-chromium >= 96.0.4664.93
-chromedriver >= 96.0.4664.93
+python  >= 3.11
+ffmpeg  >= 6.1
+firefox >= 120.0
+geckodriver >= 0.33
 ```
 
-Create a virtual environment (in the project folder) and install project-dependencies into it.
-
-(This is only required if you run directly from the python source)
+In addition to that, you'll need the python dependencies specified in `requirements.txt`.
+Create a virtual environment (in the project folder) and install project-dependencies into it:
 
 ```bash
 python3 -m venv venv
@@ -26,55 +75,8 @@ python3 -m pip install -U pip
 python3 -m pip install -U -r requirements.txt
 ```
 
-# Running
+Run the project with:
 
-Activating your venv:
-
-(This is only required if you run directly from the python source)
-
+```bash
+python3 src/main.py -c config.yml
 ```
-source ./venv/bin/activate
-```
-
-Usage:
-
-```
-The first argument supplied must be the output directory.
-If you want to supply it at a different position, the argument must be marked with "output_folder".
-    (Example: output_folder /home/feuermagier/videos/Lectures)
-
-
-Optional arguments:
-
---help: Prints a help message
-
---tum_live: Download a subject from TUM-live (subject_name:subject_identifier:camera_type)
-    subject_name: Will be used as the folder name. Freely choosable by you.
-    subject_identifier: Can be found in the URL of your chosen subject. For now please make sure to use https://live.rbg.tum.de/old/
-        (Example: https://live.rbg.tum.de/old/course/2021/W/it-sec - "2021/W/it-sec" is the subject_identifier for videos of this subject)
-    camera_type: The camera-view to download
-        COMB: Presentation slides fused with speaker-camera
-        PRES: Presentation slides
-        CAM:  Speaker camera
-        
---panopto: Download a folder from TUM-Panopto. As Panopto is login-only you will have to supply your TUM-credentials.
-    subject_name: Will be used as the folder name. Freely choosable by you.
-    folder_id: Can be found in the URL of your Panopto folder
-        (Example: https://tum.cloud.panopto.eu/Panopto/Pages/Sessions/List.aspx#folderID=a150c6d5-6cbe-40b0-8dc1-ad0a00967dfb - "a150c6d5-6cbe-40b0-8dc1-ad0a00967dfb" is the folder_id)
-
---username: Your TUM-Username (Example: go42tum)
---password: The password for your TUM-Username (Example: "hunter2")
-
---keep: Keep the original version of a downloaded video insted of only the jump-cutted ones. Defaults to true.
---jumpcut: Save a jump-cutted version of the video (fast-forwarding frames with silence). Defaults to true.
-
---temp_dir: Allows you to spcify a custom temp-directory. Usually the system-temp-folder will be used. You probably won't need this.
---maximum_parallel_downloads: Allows you to specify how many videos we download and convert at a time. Conversion uses a lot of RAM, so be careful with this. The default is 3.
-```
-
-# Automation
-
-If you want to automatically download your lectures in the future, all you need to do is run the scraper periodically.
-
-I suggest you use `systemd` for this task. Instructions on how to do this can be found in the `/systemd/README.md` of
-this repository.
