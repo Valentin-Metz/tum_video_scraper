@@ -47,6 +47,16 @@ Example: `https://tum.cloud.panopto.eu/Panopto/Pages/Sessions/List.aspx#folderID
 
 In this case, `a150c6d5-6cbe-40b0-8dc1-ad0a00967dfb` would be the `folderID`.
 
+# There are `.lock` files in my output folder!
+
+The `.lock` files are used to prevent the same video from being downloaded twice.
+They are generated at the start of a run, and if the run gets interrupted, they will not be deleted.
+If you want to run the scraper again, you'll need to delete the `.lock` files manually.
+
+You can use this feature to do partial downloads of a lecture series.
+Simply start the scraper, interrupt it after the `.lock` files have been created,
+and delete only those `.lock` files of which you want to download the videos.
+
 -----
 
 You won't need anything below this line if you are running from Docker.
