@@ -34,7 +34,7 @@ def login(tum_username: str | None, tum_password: str | None) -> webdriver:
 
     driver.get("https://tum.cloud.panopto.eu/")
     driver.find_element(By.LINK_TEXT, "Sign in").click()
-    sleep(1)
+    sleep(3)
     return driver
 
 
