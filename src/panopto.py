@@ -23,6 +23,7 @@ def login(tum_username: str | None, tum_password: str | None) -> webdriver:
 
     driver.get("https://www.moodle.tum.de/login/index.php")
     driver.find_element(By.LINK_TEXT, "TUM LOGIN").click()
+    sleep(3)
 
     driver.find_element(By.ID, "username").send_keys(tum_username)
     driver.find_element(By.ID, "password").send_keys(tum_password)
