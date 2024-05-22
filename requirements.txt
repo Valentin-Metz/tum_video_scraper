@@ -1,5 +1,5 @@
 auto-editor==24.13.1
-requests==2.31.0
+requests==2.32.0
 selenium==4.16.0
 selenium-requests==2.0.3
 BeautifulSoup4==4.12.2
