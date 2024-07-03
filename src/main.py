@@ -216,17 +216,16 @@ def main():
     # Download videos
     print("\n--------------------\n")
     print("Starting downloads:")
-    spawned_children = []
+    spawned_child_processes = []
     for subject, playlists in videos_for_subject.items():
         subject_folder = Path(destination_folder_path, subject)
         subject_folder.mkdir(exist_ok=True)
-        children = downloader.download_list_of_videos(playlists,
-                                           subject_folder, tmp_folder_path,
-                                           keep_original, jump_cut,
-                                           semaphore)
-        spawned_children = spawned_children + children
-    for child in children:
-        child.join()
+        spawned_child_processes += downloader.download_list_of_videos(playlists,
+                                                                      subject_folder, tmp_folder_path,
+                                                                      keep_original, jump_cut,
+                                                                      semaphore)
+    for process in spawned_child_processes:
+        process.join()
 
 
 if __name__ == '__main__':
