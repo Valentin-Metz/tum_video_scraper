@@ -10,7 +10,8 @@ from pathlib import Path
 def download_list_of_videos(videos: [(str, str)],
                             output_folder_path: Path, tmp_directory: Path,
                             keep_original: bool, jump_cut: bool,
-                            semaphore: Semaphore):
+                            semaphore: Semaphore) -> [Process]:
+    child_process_list = []
     for filename, url in videos:
         filename = re.sub('[\\\\/:*?"<>|]|[\x00-\x20]', '_', filename) + ".mp4"  # Filter illegal filename chars
         output_file_path = Path(output_folder_path, filename)
@@ -21,11 +22,14 @@ def download_list_of_videos(videos: [(str, str)],
                 or output_file_path.exists()
                 or output_file_path_jc.exists()):  # Check if file exists (we downloaded and converted it already)
             Path(output_file_path.as_posix() + ".lock").touch()  # Create lock file
-            Process(target=download,  # Download video in separate process
-                    args=(filename, url,
-                          output_file_path, output_file_path_jc, tmp_directory,
-                          keep_original, jump_cut,
-                          semaphore)).start()
+            child_process = Process(target=download,  # Download video in separate process
+                                    args=(filename, url,
+                                          output_file_path, output_file_path_jc, tmp_directory,
+                                          keep_original, jump_cut,
+                                          semaphore))
+            child_process.start()
+            child_process_list.append(child_process)
+    return child_process_list
 
 
 def download(filename: str, playlist_url: str,
