@@ -9,7 +9,7 @@
 The suggested way to run this project is with [Docker](https://docs.docker.com/engine/reference/commandline/run/):
 
 ```bash
-docker run -it -v config.yml:/app/config.yml -v target_location:/app/output ghcr.io/valentin-metz/tum_video_scraper:master
+docker run -it -v ./config.yml:/app/config.yml -v target_location:/app/output ghcr.io/valentin-metz/tum_video_scraper:master
 ```
 
 You'll need to link in the configuration file `config.yml`.
