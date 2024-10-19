@@ -37,7 +37,7 @@ You need to look at the URL for this one, as they are not consistent between cou
 
 
 Finally, you can specify the video stream you want to download.
-Usually TUM-Live offers three:\
+Usually TUM-Live offers three:
 1. The combined view (specified with `:COMB` after the subject identifier)
 2. The presentation view (specified with `:PRES` after the subject identifier)
 3. The presenter camera view (specified with `:CAM` after the subject identifier)
