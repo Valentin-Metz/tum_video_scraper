@@ -28,10 +28,11 @@ For [TUM-Live](https://live.rbg.tum.de/), you can find them in the URL of your l
 Example:
 `https://live.rbg.tum.de/?year=2024&term=W&slug=ws24PiSE`
 
-In this case, the subject identifier is `2024/W/ws24PiSE`.\
+In this case, the subject identifier is `2024/W/ws24PiSE`.
 1. First the `year` (`2024` in this case)
-2. Then the `term` (`W` for winter term in this case)
-3. Then the unique course `slug` (`ws24PiSE` for `Patterns in Software Engineering (IN2081)`).
+2. Then the `term` (`W` for winter term)
+3. Then the unique course `slug` (`ws24PiSE` for `Patterns in Software Engineering (IN2081)`)
+
 You need to look at the URL for this one, as they are not consistent between courses / years.
 
 
