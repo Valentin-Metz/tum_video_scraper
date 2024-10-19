@@ -86,6 +86,7 @@ def cut_video(filename: str, playlist_url: str,
         input_path,  # Input file
         '--silent_speed', '8',  # Speed multiplier while there is no audio
         '--video_codec', 'h264',  # Video codec
+        '--video-bitrate', 'unset',  # Automatic bitrate
         '--no_open',  # Don't open the finished file
         '-o', output_file_path_jc  # Output file
     ], capture_output=True)
