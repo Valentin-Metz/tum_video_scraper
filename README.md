@@ -23,24 +23,27 @@ Subject identifiers are used to specify the subjects you want to download.
 
 ## TUM-Live:
 
-For TUM-Live, you can find them here: https://live.rbg.tum.de/old/.
-After you select a lecture series, check the URL for the subject identifier.
+For [TUM-Live](https://live.rbg.tum.de/), you can find them in the URL of your lecture series.
 
 Example:
-`https://live.rbg.tum.de/old/course/2023/W/NetSec`
+`https://live.rbg.tum.de/?year=2024&term=W&slug=ws24PiSE`
 
-In this case, the subject identifier is `2023/W/NetSec`.
+In this case, the subject identifier is `2024/W/ws24PiSE`.\
+1. First the `year` (`2024` in this case)
+2. Then the `term` (`W` for winter term in this case)
+3. Then the unique course `slug` (`ws24PiSE` for `Patterns in Software Engineering (IN2081)`).
+You need to look at the URL for this one, as they are not consistent between courses / years.
+
 
 Finally, you can specify the video stream you want to download.
-Usually TUM-Live offers three:
-
+Usually TUM-Live offers three:\
 1. The combined view (specified with `:COMB` after the subject identifier)
 2. The presentation view (specified with `:PRES` after the subject identifier)
 3. The presenter camera view (specified with `:CAM` after the subject identifier)
 
 ## Panopto:
 
-For Panopto, you need to supply a `folderID`.
+For [Panopto](https://tum.cloud.panopto.eu/), you need to supply a `folderID`.
 You can find these in the URL of the folder you want to download.
 
 Example: `https://tum.cloud.panopto.eu/Panopto/Pages/Sessions/List.aspx#folderID=%22a150c6d5-6cbe-40b0-8dc1-ad0a00967dfb%22`
