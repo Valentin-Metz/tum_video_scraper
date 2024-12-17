@@ -52,9 +52,9 @@ def parse_command_line_arguments():
     parser.add_argument("-u", "--username", help="TUM-Username (go42tum)", type=str)
     parser.add_argument("-p", "--password", help="TUM-Password (must fit to the TUM-Username)", type=str)
 
-    parser.add_argument("-k", "--keep", type=bool, default=True,
+    parser.add_argument("-k", "--keep", type=bool, default=False,
                         help="Whether to keep the original file of a downloaded video. Defaults to True. Optional.")
-    parser.add_argument("-j", "--jump_cut", type=bool, default=True,
+    parser.add_argument("-j", "--jump_cut", type=bool, default=False,
                         help="Whether to jump-cut the videos or not. Defaults to True. Optional.")
 
     parser.add_argument("-o", "--output_folder", type=Path,
