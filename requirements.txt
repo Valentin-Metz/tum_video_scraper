@@ -1,9 +1,9 @@
-auto-editor==25.3.1
+auto-editor==27.1.1
 requests==2.32.3
-selenium==4.25.0
+selenium==4.32.0
 selenium-requests==2.0.4
-BeautifulSoup4==4.13.0b2
+BeautifulSoup4==4.13.4
 PyYAML==6.0.2
-pytest==8.3.3
+pytest==8.3.5
 pytest-xdist==3.6.1
-pytest-rerunfailures==14.0
+pytest-rerunfailures==15.1
