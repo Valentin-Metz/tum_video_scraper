@@ -1,10 +1,13 @@
 import argparse
 import os
 import re
+import sys
 from time import sleep
 
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
 
 import util
 
@@ -55,8 +58,12 @@ def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_ty
         sleep(2)
         filename = driver.find_element(By.XPATH, "//h1").text.strip()
         if not ("Starts in more than a day" or "Stream is due") in driver.page_source:
-            playlist_url = get_playlist_url(driver.page_source)
-            video_playlists.append((filename, playlist_url))
+            playlist_url = get_playlist_url(driver)
+            if playlist_url:
+                video_playlists.append((filename, playlist_url))
+            else:
+                print(f'Warning: no playlist URL for "{filename}" ({video_url}) - skipping',
+                      file=sys.stderr)
 
     if "ASC" in sort_order:
         video_playlists.reverse()
@@ -64,12 +71,27 @@ def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_ty
     return video_playlists
 
 
-def get_playlist_url(source: str) -> str:
-    playlist_extracted_match = re.search(r"(https://\S+?/playlist\.m3u8.*?)[\'|\"]", source)
-    if not playlist_extracted_match:
-        raise Exception("Could not extract playlist URL from TUM-live! Page source:\n" + source)
-    playlist_url = playlist_extracted_match.group(1)
-    return playlist_url
+def get_playlist_url(driver: webdriver) -> str | None:
+    try:
+        WebDriverWait(driver, 10).until(
+            lambda d: d.execute_script(
+                "const s = document.querySelector('video source'); return s && s.src ? s.src : '';"
+            )
+        )
+    except TimeoutException:
+        pass
+
+    src = driver.execute_script(
+        "const s = document.querySelector('video source'); return s && s.src ? s.src : '';"
+    )
+    if src and ".m3u8" in src:
+        return src
+
+    match = re.search(r"(https://\S+?/playlist\.m3u8[^'\"\s]*)", driver.page_source)
+    if match:
+        return match.group(1)
+
+    return None
 
 
 def get_subjects(subjects: dict[str, (str, str)], tum_username: str | None, tum_password: str | None,
