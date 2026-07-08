@@ -1,4 +1,4 @@
-FROM python:3-bullseye
+FROM python:latest
 
 RUN apt-get update && apt-get install -y ffmpeg firefox-esr npm
 ARG TARGETARCH
@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 RUN mkdir /app/output
 
-ENV NO-SANDBOX 1
+ENV NO-SANDBOX=1
 
 COPY ./src /app/src
 
