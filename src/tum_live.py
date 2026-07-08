@@ -35,22 +35,17 @@ def login(tum_username: str | None, tum_password: str | None) -> webdriver:
 
 
 def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_type) -> [(str, str)]:
-    subject_url = "https://live.rbg.tum.de/old/course/" + subjects_identifier
+    year, term, slug = subjects_identifier.split("/", 2)
+    subject_url = f"https://live.rbg.tum.de/?year={year}&term={term}&slug={slug}&view=3"
     driver.get(subject_url)
 
-    links_on_page = driver.find_elements(By.XPATH, ".//a")
-    video_urls: [str] = []
-    for link in links_on_page:
-        link_url = link.get_attribute("href")
-        if link_url and "https://live.rbg.tum.de/w/" in link_url:
-            video_urls.append(link_url)
-
-    video_urls = [url for url in video_urls if ("/CAM" not in url and "/PRES" not in url and "/chat" not in url)]
-    video_urls = list(dict.fromkeys(video_urls))  # deduplicate
+    # The course page is rendered client-side, so we wait for the video list
+    # to appear before scraping it. An empty list means an empty lecture series.
+    video_urls = _collect_video_links(driver)
     if not video_urls:
-        return []  # Empty lecture series
+        return []
 
-    sort_order = driver.find_element(By.ID, "sort_order_button").text
+    sort_ascending = _sort_is_ascending(driver)
 
     video_playlists: [(str, str)] = []
     for video_url in video_urls:
@@ -65,10 +60,49 @@ def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_ty
                 print(f'Warning: no playlist URL for "{filename}" ({video_url}) - skipping',
                       file=sys.stderr)
 
-    if "ASC" in sort_order:
+    if not sort_ascending:
         video_playlists.reverse()
 
     return video_playlists
+
+
+def _collect_video_links(driver: webdriver) -> [str]:
+    # The video list is rendered asynchronously; wait for at least one
+    # watch link ("https://live.rbg.tum.de/w/...") to appear.
+    def watch_links() -> [str]:
+        urls: [str] = []
+        for link in driver.find_elements(By.XPATH, ".//a"):
+            link_url = link.get_attribute("href")
+            if link_url and "https://live.rbg.tum.de/w/" in link_url:
+                urls.append(link_url)
+        urls = [url for url in urls if ("/CAM" not in url and "/PRES" not in url and "/chat" not in url)]
+        return list(dict.fromkeys(urls))  # deduplicate, preserve order
+
+    try:
+        WebDriverWait(driver, 10).until(lambda _d: watch_links())
+    except TimeoutException:
+        pass
+    return watch_links()
+
+
+def _sort_is_ascending(driver: webdriver) -> bool:
+    # The newer TUM-Live UI offers two toggle buttons, "Newest first" and
+    # "Oldest first"; the one carrying the "active" class reflects the
+    # current order. We consider the list ascending (oldest first) only when
+    # "Oldest first" is the active button, defaulting to descending.
+    newest = oldest = False
+    for button in driver.find_elements(By.CSS_SELECTOR, "button"):
+        label = (button.text or "").strip()
+        if not label:
+            continue
+        classes = button.get_attribute("class") or ""
+        if "active" not in classes:
+            continue
+        if label == "Oldest first":
+            oldest = True
+        elif label == "Newest first":
+            newest = True
+    return oldest and not newest
 
 
 def get_playlist_url(driver: webdriver) -> str | None:

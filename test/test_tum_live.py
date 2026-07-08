@@ -57,6 +57,25 @@ def test_get_subjects_login():
             == '026_NO LECTURE')
 
 
+def test_get_subjects_winter_25():
+    tum_live_subjects = {
+        'Advanced Programming (IN1503)': ('2025/W/WiSe25_26_AP', 'COMB'),
+    }
+    videos_for_subject: dict[str, [(str, str)]] = {}
+
+    tum_live.get_subjects(tum_live_subjects, os.environ['TUM_USERNAME'], os.environ['TUM_PASSWORD'],
+                          videos_for_subject)
+
+    assert (len(videos_for_subject['Advanced Programming (IN1503)']) == 14)
+
+    assert (videos_for_subject['Advanced Programming (IN1503)'][0][0]
+            == '000_CANCELLED LECTURE (CSE Primer)')
+    assert (videos_for_subject['Advanced Programming (IN1503)'][1][0]
+            == '001_Lecture 1: Introduction')
+    assert (videos_for_subject['Advanced Programming (IN1503)'][13][0]
+            == '013_Lecture 13: Legacy & future, Closing')
+
+
 def test_get_subjects_large():
     tum_live_subjects = {
         'Introduction to Deep Learning (IN2346)': ('2022/W/i2dl', 'COMB'),
