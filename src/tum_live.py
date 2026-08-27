@@ -5,11 +5,46 @@ import sys
 from time import sleep
 
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 
 import util
+
+LOGIN_URL = "https://live.rbg.tum.de/login"
+USERNAME_FIELD = (By.ID, "username")
+
+
+def open_login_form(driver: webdriver, timeout: int = 30) -> None:
+    """Bring the username and password fields of the login page into the DOM.
+
+    The page is rendered client-side, so nothing is present until the scripts have
+    run, and the credential fields may sit behind a button that reveals them. Wait
+    for the fields, and click through the buttons on offer if they are not there yet.
+    """
+    wait = WebDriverWait(driver, timeout)
+    try:
+        wait.until(lambda d: d.find_elements(*USERNAME_FIELD) or d.find_elements(By.TAG_NAME, "button"))
+    except TimeoutException:
+        raise RuntimeError(f"{LOGIN_URL} showed no login form and no button within {timeout}s")
+
+    if driver.find_elements(*USERNAME_FIELD):
+        return
+
+    buttons_tried = []
+    for button in driver.find_elements(By.TAG_NAME, "button"):
+        buttons_tried.append((button.text or "").strip() or "<unlabelled>")
+        try:
+            button.click()
+        except WebDriverException:
+            continue
+        try:
+            WebDriverWait(driver, 5).until(lambda d: d.find_elements(*USERNAME_FIELD))
+            return
+        except TimeoutException:
+            continue
+
+    raise RuntimeError(f"No username field on {LOGIN_URL}. Buttons tried: {buttons_tried}")
 
 
 def login(tum_username: str | None, tum_password: str | None) -> webdriver:
@@ -21,8 +56,8 @@ def login(tum_username: str | None, tum_password: str | None) -> webdriver:
     driver = webdriver.Firefox(options=driver_options)
 
     if tum_username:
-        driver.get("https://live.rbg.tum.de/login")
-        driver.find_element(By.XPATH, "/html/body/main/section/article/div/button").click()
+        driver.get(LOGIN_URL)
+        open_login_form(driver)
         driver.find_element(By.ID, "username").send_keys(tum_username)
         driver.find_element(By.ID, "password").send_keys(tum_password)
         driver.find_element(By.ID, "username").submit()
