@@ -22,12 +22,12 @@ def login(tum_username: str | None, tum_password: str | None) -> webdriver:
 
     if tum_username:
         driver.get("https://live.rbg.tum.de/login")
-        driver.find_element(By.XPATH, "/html/body/main/section/article/div/button").click()
+        WebDriverWait(driver, 30).until(lambda d: d.find_elements(By.TAG_NAME, "button"))[0].click()
         driver.find_element(By.ID, "username").send_keys(tum_username)
         driver.find_element(By.ID, "password").send_keys(tum_password)
         driver.find_element(By.ID, "username").submit()
-        sleep(2)
-        if "Couldn't log in. Please double check your credentials." in driver.page_source:
+        WebDriverWait(driver, 10).until(lambda d: d.current_url != "https://live.rbg.tum.de/login")
+        if driver.current_url == "https://live.rbg.tum.de/login?error=1":
             driver.close()
             raise argparse.ArgumentTypeError("Username or password incorrect")
     driver.get("https://live.rbg.tum.de/old/")
