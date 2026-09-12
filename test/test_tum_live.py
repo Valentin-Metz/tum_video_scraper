@@ -8,14 +8,14 @@ import tum_live
 
 def test_login_pass():
     webdriver = tum_live.login(os.environ['TUM_USERNAME'], os.environ['TUM_PASSWORD'])
-    assert (webdriver.current_url.rstrip("/") == "https://live.rbg.tum.de/old")
+    assert (webdriver.current_url.rstrip("/") == "https://live.rbg.tum.de")
     assert ("Login" not in webdriver.page_source)
     webdriver.close()
 
 
 def test_login_none():
     webdriver = tum_live.login(None, None)
-    assert (webdriver.current_url.rstrip("/") == "https://live.rbg.tum.de/old")
+    assert (webdriver.current_url.rstrip("/") == "https://live.rbg.tum.de")
     assert ("Login" in webdriver.page_source)
     webdriver.close()
 
