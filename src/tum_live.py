@@ -22,22 +22,16 @@ def login(tum_username: str | None, tum_password: str | None) -> webdriver:
 
     if tum_username:
         driver.get("https://live.rbg.tum.de/login")
-        WebDriverWait(driver, 30).until(
-            lambda d: d.find_elements(By.CSS_SELECTOR, "a[href='/saml/out']")
-        )[0].click()
-        WebDriverWait(driver, 30).until(lambda d: d.find_element(By.ID, "username"))
+        WebDriverWait(driver, 30).until(lambda d: d.find_elements(By.TAG_NAME, "button"))[0].click()
         driver.find_element(By.ID, "username").send_keys(tum_username)
         driver.find_element(By.ID, "password").send_keys(tum_password)
         driver.find_element(By.ID, "username").submit()
-        try:
-            WebDriverWait(driver, 30).until(
-                lambda d: d.current_url.startswith("https://live.rbg.tum.de/")
-                and "/login" not in d.current_url
-            )
-        except TimeoutException:
+        WebDriverWait(driver, 10).until(lambda d: d.current_url != "https://live.rbg.tum.de/login")
+        if driver.current_url.startswith("https://live.rbg.tum.de/login?error=1"):
             driver.close()
             raise argparse.ArgumentTypeError("Username or password incorrect")
     driver.get("https://live.rbg.tum.de/")
+    return driver
 
 
 def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_type) -> [(str, str)]:
