@@ -52,7 +52,7 @@ def get_video_links_of_subject(driver: webdriver, subjects_identifier, camera_ty
         driver.get(video_url + "/" + camera_type)
         sleep(2)
         filename = driver.find_element(By.XPATH, "//h1").text.strip()
-        if not ("Starts in more than a day" or "Stream is due") in driver.page_source:
+        if "Starts in more than a day" not in driver.page_source and "Stream is due" not in driver.page_source:
             playlist_url = get_playlist_url(driver)
             if playlist_url:
                 video_playlists.append((filename, playlist_url))
@@ -106,20 +106,29 @@ def _sort_is_ascending(driver: webdriver) -> bool:
 
 
 def get_playlist_url(driver: webdriver) -> str | None:
+    extract_script = """
+        const player = document.querySelector('.video-js')?.player
+            || document.querySelector('video')?.parentElement?.player;
+        if (player && typeof player.currentSrc === 'function') {
+            const s = player.currentSrc();
+            if (s && s.includes('.m3u8')) return s;
+        }
+        const entries = performance.getEntriesByType('resource');
+        for (let j = entries.length - 1; j >= 0; j--) {
+            if (entries[j].name.includes('.m3u8')) return entries[j].name;
+        }
+        const s = document.querySelector('video source');
+        if (s && s.src && s.src.includes('.m3u8')) return s.src;
+        return null;
+    """
     try:
-        WebDriverWait(driver, 10).until(
-            lambda d: d.execute_script(
-                "const s = document.querySelector('video source'); return s && s.src ? s.src : '';"
-            )
+        src = WebDriverWait(driver, 10).until(
+            lambda d: d.execute_script(extract_script)
         )
+        if src:
+            return src
     except TimeoutException:
         pass
-
-    src = driver.execute_script(
-        "const s = document.querySelector('video source'); return s && s.src ? s.src : '';"
-    )
-    if src and ".m3u8" in src:
-        return src
 
     match = re.search(r"(https://\S+?/playlist\.m3u8[^'\"\s]*)", driver.page_source)
     if match:
